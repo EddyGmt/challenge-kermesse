@@ -330,6 +330,112 @@
                 }
             }
         },
+        "/create-product": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Crée un nouvel produit avec les informations fournies",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Crée un nouveau produit",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "Bearer Add access token here",
+                        "description": "Insert your access token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Produit à créer",
+                        "name": "product",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Product"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Product"
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur serveur interne",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    }
+                }
+            }
+        },
+        "/create-stand": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Crée un nouveau stand avec les informations fournies",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Stand"
+                ],
+                "summary": "Crée un nouveau stand",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "Bearer Add access token here",
+                        "description": "Insert your access token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Stand à créer",
+                        "name": "stand",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Stand"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Stand"
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur serveur interne",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    }
+                }
+            }
+        },
         "/kermesses": {
             "get": {
                 "security": [
@@ -722,7 +828,51 @@
                 }
             }
         },
-        "/product/{id}/delete": {
+        "/products": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Récupère la liste de tous les produits",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Récupère tous les produits",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "Bearer Add access token here",
+                        "description": "Insert your access token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Product"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur serveur interne",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    }
+                }
+            }
+        },
+        "/products/{id}/delete": {
             "delete": {
                 "security": [
                     {
@@ -773,7 +923,7 @@
                 }
             }
         },
-        "/product/{id}/update": {
+        "/products/{id}/update": {
             "put": {
                 "security": [
                     {
@@ -809,7 +959,7 @@
                     },
                     {
                         "description": "Produit à mettre à jour",
-                        "name": "user",
+                        "name": "product",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -828,50 +978,6 @@
                         "description": "Prodduit non trouvé",
                         "schema": {
                             "$ref": "#/definitions/gin.H"
-                        }
-                    },
-                    "500": {
-                        "description": "Erreur serveur interne",
-                        "schema": {
-                            "$ref": "#/definitions/gin.H"
-                        }
-                    }
-                }
-            }
-        },
-        "/products": {
-            "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "Récupère la liste de tous les produits",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Product"
-                ],
-                "summary": "Récupère tous les produits",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "default": "Bearer Add access token here",
-                        "description": "Insert your access token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.Product"
-                            }
                         }
                     },
                     "500": {
@@ -1043,6 +1149,221 @@
                     },
                     "500": {
                         "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    }
+                }
+            }
+        },
+        "/stands": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Récupère la liste de tous les stands",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Stand"
+                ],
+                "summary": "Récupère tous les produits",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "Bearer Add access token here",
+                        "description": "Insert your access token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Stand"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur serveur interne",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    }
+                }
+            }
+        },
+        "/stands/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Récupère les informations d'un utilisateur spécifique",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Stand"
+                ],
+                "summary": "Récupère un stand par ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "Bearer Add access token here",
+                        "description": "Insert your access token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "ID de l'utilisateur",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Stand"
+                        }
+                    },
+                    "404": {
+                        "description": "Stand non trouvé",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur serveur interne",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    }
+                }
+            }
+        },
+        "/stands/{id}/delete": {
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Supprime un stand spécifique",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Stand"
+                ],
+                "summary": "Supprime un stand par ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "Bearer Add access token here",
+                        "description": "Insert your access token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "ID de du stand",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "404": {
+                        "description": "stand non trouvé",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur serveur interne",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    }
+                }
+            }
+        },
+        "/stands/{id}/update": {
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Met à jour les informations d'un stand spécifique",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Stand"
+                ],
+                "summary": "Met à jour un stand par ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "Bearer Add access token here",
+                        "description": "Insert your access token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "ID de l'utilisateur",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Stand à mettre à jours",
+                        "name": "stand",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Stand"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Stand"
+                        }
+                    },
+                    "404": {
+                        "description": "Stand non trouvé",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur serveur interne",
                         "schema": {
                             "$ref": "#/definitions/gin.H"
                         }

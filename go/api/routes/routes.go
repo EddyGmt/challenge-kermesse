@@ -35,10 +35,17 @@ func KermesseRoutes(r *gin.Engine) {
 
 // CRUD Stand
 func StandRoutes(r *gin.Engine) {
+	r.POST("/create-stand", middlewares.CheckAuth, controllers.CreateStand)
+	r.GET("/stands", middlewares.CheckAuth, controllers.GetAllStands)
+	r.GET("/stands/:id", middlewares.CheckAuth, controllers.GetStandById)
+	r.PUT("/stands/:id/update", middlewares.CheckAuth, controllers.UpdateStand)
+	r.DELETE("/stands/:id/delete", middlewares.CheckAuth, controllers.DeleteStand)
+}
+
+// CRUD Product
+func ProductRoutes(r *gin.Engine) {
+	r.POST("/create-product", middlewares.CheckAuth, controllers.CreateProduct)
 	r.GET("/products", middlewares.CheckAuth, controllers.GetProducts)
 	r.PUT("/products/:id/update", middlewares.CheckAuth, controllers.UpdateProduct)
 	r.DELETE("/products/:id/delete", middlewares.CheckAuth, controllers.DeleteProduct)
 }
-
-// CRUD Product
-func ProductRoutes(r *gin.Engine) {}

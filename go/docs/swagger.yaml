@@ -384,6 +384,74 @@ paths:
       summary: Créé une kermesse
       tags:
       - Kermesse
+  /create-product:
+    post:
+      consumes:
+      - application/json
+      description: Crée un nouvel produit avec les informations fournies
+      parameters:
+      - default: Bearer Add access token here
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Produit à créer
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/models.Product'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Product'
+        "500":
+          description: Erreur serveur interne
+          schema:
+            $ref: '#/definitions/gin.H'
+      security:
+      - Bearer: []
+      summary: Crée un nouveau produit
+      tags:
+      - Product
+  /create-stand:
+    post:
+      consumes:
+      - application/json
+      description: Crée un nouveau stand avec les informations fournies
+      parameters:
+      - default: Bearer Add access token here
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Stand à créer
+        in: body
+        name: stand
+        required: true
+        schema:
+          $ref: '#/definitions/models.Stand'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Stand'
+        "500":
+          description: Erreur serveur interne
+          schema:
+            $ref: '#/definitions/gin.H'
+      security:
+      - Bearer: []
+      summary: Crée un nouveau stand
+      tags:
+      - Stand
   /kermesses:
     get:
       consumes:
@@ -639,7 +707,35 @@ paths:
       summary: Logout
       tags:
       - Auth
-  /product/{id}/delete:
+  /products:
+    get:
+      description: Récupère la liste de tous les produits
+      parameters:
+      - default: Bearer Add access token here
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Product'
+            type: array
+        "500":
+          description: Erreur serveur interne
+          schema:
+            $ref: '#/definitions/gin.H'
+      security:
+      - Bearer: []
+      summary: Récupère tous les produits
+      tags:
+      - Product
+  /products/{id}/delete:
     delete:
       description: Supprime un utilisateur spécifique
       parameters:
@@ -672,7 +768,7 @@ paths:
       summary: Supprime un produit par ID
       tags:
       - Product
-  /product/{id}/update:
+  /products/{id}/update:
     put:
       consumes:
       - application/json
@@ -691,7 +787,7 @@ paths:
         type: integer
       - description: Produit à mettre à jour
         in: body
-        name: user
+        name: product
         required: true
         schema:
           $ref: '#/definitions/models.Product'
@@ -713,34 +809,6 @@ paths:
       security:
       - Bearer: []
       summary: Met à jour un produit par son ID
-      tags:
-      - Product
-  /products:
-    get:
-      description: Récupère la liste de tous les produits
-      parameters:
-      - default: Bearer Add access token here
-        description: Insert your access token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/models.Product'
-            type: array
-        "500":
-          description: Erreur serveur interne
-          schema:
-            $ref: '#/definitions/gin.H'
-      security:
-      - Bearer: []
-      summary: Récupère tous les produits
       tags:
       - Product
   /profile:
@@ -851,4 +919,143 @@ paths:
       summary: Allow you to register as a new User
       tags:
       - Auth
+  /stands:
+    get:
+      description: Récupère la liste de tous les stands
+      parameters:
+      - default: Bearer Add access token here
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Stand'
+            type: array
+        "500":
+          description: Erreur serveur interne
+          schema:
+            $ref: '#/definitions/gin.H'
+      security:
+      - Bearer: []
+      summary: Récupère tous les produits
+      tags:
+      - Stand
+  /stands/{id}:
+    get:
+      description: Récupère les informations d'un utilisateur spécifique
+      parameters:
+      - default: Bearer Add access token here
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: ID de l'utilisateur
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Stand'
+        "404":
+          description: Stand non trouvé
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Erreur serveur interne
+          schema:
+            $ref: '#/definitions/gin.H'
+      security:
+      - Bearer: []
+      summary: Récupère un stand par ID
+      tags:
+      - Stand
+  /stands/{id}/delete:
+    delete:
+      description: Supprime un stand spécifique
+      parameters:
+      - default: Bearer Add access token here
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: ID de du stand
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: stand non trouvé
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Erreur serveur interne
+          schema:
+            $ref: '#/definitions/gin.H'
+      security:
+      - Bearer: []
+      summary: Supprime un stand par ID
+      tags:
+      - Stand
+  /stands/{id}/update:
+    put:
+      consumes:
+      - application/json
+      description: Met à jour les informations d'un stand spécifique
+      parameters:
+      - default: Bearer Add access token here
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: ID de l'utilisateur
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Stand à mettre à jours
+        in: body
+        name: stand
+        required: true
+        schema:
+          $ref: '#/definitions/models.Stand'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Stand'
+        "404":
+          description: Stand non trouvé
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Erreur serveur interne
+          schema:
+            $ref: '#/definitions/gin.H'
+      security:
+      - Bearer: []
+      summary: Met à jour un stand par ID
+      tags:
+      - Stand
 swagger: "2.0"
