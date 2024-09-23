@@ -18,6 +18,7 @@ func main() {
 		&models.Stand{},
 		&models.Product{},
 		&models.Transaction{},
+		&models.Jetons{},
 	)
 	seed.SeedData(initializers.DB)
 	if err != nil {
