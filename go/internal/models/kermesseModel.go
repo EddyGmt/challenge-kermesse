@@ -4,8 +4,7 @@ type Kermesse struct {
 	ID   uint   `gorm:"primary_key; not null; autoIncrement" json:"id"`
 	Name string `gorm:"size:64; not null" json:"name"`
 
-	// Relations One-to-Many : Une kermesse a plusieurs stands
-	Stands []Stand `gorm:"foreignKey:KermesseID" json:"stands"`
+	Stands []Stand `gorm:"many2many:kermesse_stands;" json:"stands"`
 
 	// Relations Many-to-Many : Organisateurs et participants de la kermesse
 	Organisateurs []User `gorm:"many2many:kermesse_organisateurs;" json:"organisateurs"`

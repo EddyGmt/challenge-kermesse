@@ -23,6 +23,9 @@ func main() {
 	routes.KermesseRoutes(server)
 	routes.StandRoutes(server)
 	routes.ProductRoutes(server)
+	routes.PaymentRoutes(server)
+	routes.TransactionsRoutes(server)
+	routes.JetonsRoutes(server)
 
 	server.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	err := server.Run(":8080")

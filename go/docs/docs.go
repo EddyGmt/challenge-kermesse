@@ -59,6 +59,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "Crée un nouvel utilisateur avec les informations fournies",
                 "consumes": [
                     "application/json"
@@ -71,6 +76,14 @@ const docTemplate = `{
                 ],
                 "summary": "Crée un nouvel utilisateur",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "default": "Bearer Add access token here",
+                        "description": "Insert your access token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "description": "Utilisateur à créer",
                         "name": "user",
@@ -264,6 +277,59 @@ const docTemplate = `{
                 }
             }
         },
+        "/create-jeton": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Crée un nouveau jeton",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Jeton"
+                ],
+                "summary": "Crée un nouveau jeton",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "Bearer Add access token here",
+                        "description": "Insert your access token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Jeton à créer",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Jetons"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Jetons"
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur serveur interne",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    }
+                }
+            }
+        },
         "/create-kermesse": {
             "post": {
                 "security": [
@@ -401,7 +467,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "Crée un nouveau stand avec les informations fournies",
+                "description": "Permet d'interagir avec un stand en échange de jetons",
                 "consumes": [
                     "application/json"
                 ],
@@ -411,7 +477,7 @@ const docTemplate = `{
                 "tags": [
                     "Stand"
                 ],
-                "summary": "Crée un nouveau stand",
+                "summary": "Interagir avec un stand",
                 "parameters": [
                     {
                         "type": "string",
@@ -436,6 +502,167 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/models.Stand"
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur serveur interne",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    }
+                }
+            }
+        },
+        "/jetons": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Récupère la liste de tous les jetons",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Jeton"
+                ],
+                "summary": "Récupère tous les jetons",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "Bearer Add access token here",
+                        "description": "Insert your access token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Jetons"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur serveur interne",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    }
+                }
+            }
+        },
+        "/jetons/{id}/delete": {
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Supprime un jeton spécifique",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Jeton"
+                ],
+                "summary": "Supprime un jeton par ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "Bearer Add access token here",
+                        "description": "Insert your access token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "ID du jeton",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "404": {
+                        "description": "Jeton non trouvé",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur serveur interne",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    }
+                }
+            }
+        },
+        "/jetons/{id}/update": {
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Met à jour les informations d'un jeton spécifique",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Jeton"
+                ],
+                "summary": "Met à jour un jeton par ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "Bearer Add access token here",
+                        "description": "Insert your access token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "ID de l'utilisateur",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Utilisateur à mettre à jour",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Jetons"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Jetons"
+                        }
+                    },
+                    "404": {
+                        "description": "Jeton non trouvé",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
                         }
                     },
                     "500": {
@@ -832,6 +1059,59 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    }
+                }
+            }
+        },
+        "/payment": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Crée une intention de paiement pour que les parents puissent acheter des jetons",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Payment"
+                ],
+                "summary": "Crée une intention de paiement pour les jetons",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "Bearer Add access token here",
+                        "description": "Insert your access token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Paiement des jetons",
+                        "name": "stand",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Jetons"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Jetons"
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur serveur interne",
                         "schema": {
                             "$ref": "#/definitions/gin.H"
                         }
@@ -1381,12 +1661,114 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/students": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Récupère la liste de tous les utilisateurs",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Student"
+                ],
+                "summary": "Récupère tous les utilisateurs avec le rôle d'élève",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "Bearer Add access token here",
+                        "description": "Insert your access token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.User"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur serveur interne",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    }
+                }
+            }
+        },
+        "/transactions": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Récupère la liste de toutes les transactions",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transactions"
+                ],
+                "summary": "Récupère toutes les transactions faites par le user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "Bearer Add access token here",
+                        "description": "Insert your access token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Transaction"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur serveur interne",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
         "gin.H": {
             "type": "object",
             "additionalProperties": {}
+        },
+        "models.Jetons": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "nb_jetons": {
+                    "type": "integer"
+                },
+                "price": {
+                    "type": "number"
+                }
+            }
         },
         "models.Kermesse": {
             "type": "object",
@@ -1411,7 +1793,6 @@ const docTemplate = `{
                     }
                 },
                 "stands": {
-                    "description": "Relations One-to-Many : Une kermesse a plusieurs stands",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/models.Stand"
@@ -1430,6 +1811,9 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "id": {
+                    "type": "integer"
+                },
+                "jetons_requis": {
                     "type": "integer"
                 },
                 "name": {
@@ -1459,12 +1843,14 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "kermesse": {
-                    "$ref": "#/definitions/models.Kermesse"
-                },
-                "kermesse_id": {
-                    "description": "Relations avec la kermesse et le gestionnaire du stand (User)",
+                "jetons_requis": {
                     "type": "integer"
+                },
+                "kermesses": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Kermesse"
+                    }
                 },
                 "name": {
                     "type": "string"
@@ -1493,17 +1879,20 @@ const docTemplate = `{
         "models.Transaction": {
             "type": "object",
             "properties": {
+                "Quantity": {
+                    "type": "integer"
+                },
                 "date_transaction": {
                     "type": "string"
                 },
                 "id": {
                     "type": "integer"
                 },
-                "nb_jetons": {
-                    "type": "integer"
-                },
                 "price": {
                     "type": "number"
+                },
+                "type": {
+                    "type": "string"
                 },
                 "user": {
                     "description": "Association avec l'utilisateur",

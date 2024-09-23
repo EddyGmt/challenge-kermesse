@@ -49,3 +49,18 @@ func ProductRoutes(r *gin.Engine) {
 	r.PUT("/products/:id/update", middlewares.CheckAuth, controllers.UpdateProduct)
 	r.DELETE("/products/:id/delete", middlewares.CheckAuth, controllers.DeleteProduct)
 }
+
+func JetonsRoutes(r *gin.Engine) {
+	r.POST("/create-jetons", middlewares.CheckAuth, controllers.CreateJetons)
+	r.GET("/jetons", middlewares.CheckAuth, controllers.GetJetons)
+	r.PUT("/jetons/:id/update", middlewares.CheckAuth, controllers.UpdateJeton)
+	r.DELETE("/jetons/:id/delete", middlewares.CheckAuth, controllers.DeleteJeton)
+}
+
+func PaymentRoutes(r *gin.Engine) {
+	r.POST("/payment", middlewares.CheckAuth, controllers.Payment)
+}
+
+func TransactionsRoutes(r *gin.Engine) {
+	r.GET("/transactions", middlewares.CheckAuth, controllers.GetTransactions)
+}

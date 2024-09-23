@@ -12,6 +12,8 @@ import (
 // @Tags User
 // @Accept json
 // @Produce json
+// @Security Bearer
+// @Param Authorization header string true "Insert your access token" default(Bearer Add access token here)
 // @Param user body models.User true "Utilisateur à créer"
 // @Success 200 {object} models.User
 // @Failure 500 {object} gin.H "Erreur serveur interne"

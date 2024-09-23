@@ -174,3 +174,46 @@ func DeleteStand(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "stand supprimé"})
 }
+
+// @Summary Interagir avec un stand
+// @Description Permet d'interagir avec un stand en échange de jetons
+// @Tags Stand
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param Authorization header string true "Insert your access token" default(Bearer Add access token here)
+// @Param stand body models.Stand true "Stand à créer"
+// @Success 200 {object} models.Stand
+// @Failure 500 {object} gin.H "Erreur serveur interne"
+// @Router /create-stand [post]
+func InteractWithStand(c *gin.Context) {
+	user, exists := c.Get("currentUser")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not logged"})
+		return
+	}
+
+	var stand models.Stand
+
+	currentUser := user.(models.User)
+	if currentUser.Jetons < stand.JetonsRequis {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "You don't have enough coins to do that"})
+		return
+	}
+
+	stand.Conso = currentUser.Jetons - stand.JetonsRequis
+	if err := initializers.DB.Save(&stand).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	currentUser.Jetons -= stand.JetonsRequis
+	if err := initializers.DB.Save(&currentUser).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"stand":       stand.Conso,
+		"jetons user": currentUser.Jetons,
+	})
+}

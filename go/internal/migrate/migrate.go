@@ -3,6 +3,7 @@ package main
 import (
 	"project/internal/initializers"
 	"project/internal/models"
+	"project/internal/seed"
 )
 
 func init() {
@@ -18,6 +19,7 @@ func main() {
 		&models.Product{},
 		&models.Transaction{},
 	)
+	seed.SeedData(initializers.DB)
 	if err != nil {
 		return
 	}
