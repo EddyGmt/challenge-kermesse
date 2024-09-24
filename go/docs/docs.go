@@ -15,6 +15,59 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/add-children": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Permet de créer une relation entre les parents et les enfant",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Parent"
+                ],
+                "summary": "Créer une relation parents/enfants",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "Bearer Add access token here",
+                        "description": "Insert your access token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Ajouter un ou plusieurs enfants",
+                        "name": "parent",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/requests.AddChildrenRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur serveur interne",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    }
+                }
+            }
+        },
         "/api/users": {
             "get": {
                 "security": [
@@ -90,7 +143,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.User"
+                            "$ref": "#/definitions/requests.SignupRequest"
                         }
                     }
                 ],
@@ -467,7 +520,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "Permet d'interagir avec un stand en échange de jetons",
+                "description": "Crée un nouveau stand avec les informations fournies",
                 "consumes": [
                     "application/json"
                 ],
@@ -477,7 +530,7 @@ const docTemplate = `{
                 "tags": [
                     "Stand"
                 ],
-                "summary": "Interagir avec un stand",
+                "summary": "Crée un nouveau stand",
                 "parameters": [
                     {
                         "type": "string",
@@ -493,7 +546,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Stand"
+                            "$ref": "#/definitions/requests.StandRequest"
                         }
                     }
                 ],
@@ -823,22 +876,13 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
-                    },
-                    {
-                        "description": "Kermesse data",
-                        "name": "kermesse",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.Kermesse"
-                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Kermesse updated",
+                        "description": "Kermesse delete",
                         "schema": {
-                            "$ref": "#/definitions/models.Kermesse"
+                            "$ref": "#/definitions/gin.H"
                         }
                     },
                     "401": {
@@ -1073,7 +1117,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "Crée une intention de paiement pour que les parents puissent acheter des jetons",
+                "description": "Crée une intention de paiement pour acheter des jetons ou des tickets de tombola",
                 "consumes": [
                     "application/json"
                 ],
@@ -1083,7 +1127,7 @@ const docTemplate = `{
                 "tags": [
                     "Payment"
                 ],
-                "summary": "Crée une intention de paiement pour les jetons",
+                "summary": "Crée une intention de paiement pour les jetons ou les tickets de tombola",
                 "parameters": [
                     {
                         "type": "string",
@@ -1094,12 +1138,12 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "Paiement des jetons",
-                        "name": "stand",
+                        "description": "Paiement des jetons ou tombola",
+                        "name": "payment",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Jetons"
+                            "$ref": "#/definitions/requests.PaymentRequest"
                         }
                     }
                 ],
@@ -1107,7 +1151,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.Jetons"
+                            "$ref": "#/definitions/models.Transaction"
                         }
                     },
                     "500": {
@@ -1596,6 +1640,57 @@ const docTemplate = `{
                 }
             }
         },
+        "/stands/{id}/interact": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Permet d'interagir avec un stand en échange de jetons",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Stand"
+                ],
+                "summary": "Interagir avec un stand",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID du stand",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "default": "Bearer Add access token here",
+                        "description": "Insert your access token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Stand"
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur serveur interne",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    }
+                }
+            }
+        },
         "/stands/{id}/update": {
             "put": {
                 "security": [
@@ -1970,6 +2065,17 @@ const docTemplate = `{
                 }
             }
         },
+        "requests.AddChildrenRequest": {
+            "type": "object",
+            "properties": {
+                "children_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
         "requests.KermeseRequest": {
             "type": "object",
             "properties": {
@@ -1989,6 +2095,25 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "requests.PaymentRequest": {
+            "type": "object",
+            "required": [
+                "price",
+                "quantity",
+                "type"
+            ],
+            "properties": {
+                "price": {
+                    "type": "number"
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "type": {
                     "type": "string"
                 }
             }
@@ -2019,6 +2144,25 @@ const docTemplate = `{
                 },
                 "role": {
                     "type": "integer"
+                }
+            }
+        },
+        "requests.StandRequest": {
+            "type": "object",
+            "required": [
+                "jetons-requis",
+                "name",
+                "type"
+            ],
+            "properties": {
+                "jetons-requis": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
                 }
             }
         }

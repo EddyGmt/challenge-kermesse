@@ -3,6 +3,7 @@ package controllers
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"project/api/requests"
 	"project/internal/initializers"
 	"project/internal/models"
 )
@@ -14,7 +15,7 @@ import (
 // @Produce json
 // @Security Bearer
 // @Param Authorization header string true "Insert your access token" default(Bearer Add access token here)
-// @Param stand body models.Stand true "Stand à créer"
+// @Param stand body requests.StandRequest true "Stand à créer"
 // @Success 200 {object} models.Stand
 // @Failure 500 {object} gin.H "Erreur serveur interne"
 // @Router /create-stand [post]
@@ -26,12 +27,18 @@ func CreateStand(c *gin.Context) {
 	}
 
 	currentUser := user.(models.User)
-	if currentUser.Role != 1 || currentUser.Role != 3 {
+	if currentUser.Role != 1 && currentUser.Role != 3 {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "You don't have permission to do that"})
 		return
 	}
 
-	var stand models.Stand
+	var standData requests.StandRequest
+	stand := models.Stand{
+		Name:         standData.Name,
+		Type:         standData.Type,
+		JetonsRequis: standData.JetonsRequis,
+		UserID:       currentUser.ID,
+	}
 	if err := c.ShouldBind(&stand); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -167,8 +174,9 @@ func DeleteStand(c *gin.Context) {
 		return
 	}
 
+	var stand models.Stand
 	standID := c.Param("id")
-	if err := initializers.DB.Delete("id = ?", standID).Error; err != nil {
+	if err := initializers.DB.Delete(stand, standID).Error; err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "stand not found"})
 		return
 	}
@@ -181,11 +189,11 @@ func DeleteStand(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security Bearer
+// @Param id path int true "ID du stand"
 // @Param Authorization header string true "Insert your access token" default(Bearer Add access token here)
-// @Param stand body models.Stand true "Stand à créer"
 // @Success 200 {object} models.Stand
 // @Failure 500 {object} gin.H "Erreur serveur interne"
-// @Router /create-stand [post]
+// @Router /stands/{id}/interact [post]
 func InteractWithStand(c *gin.Context) {
 	user, exists := c.Get("currentUser")
 	if !exists {
@@ -193,10 +201,15 @@ func InteractWithStand(c *gin.Context) {
 		return
 	}
 
+	standID := c.Param("id")
 	var stand models.Stand
+	if err := initializers.DB.First(&stand, "id = ?", standID).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
 	currentUser := user.(models.User)
-	if currentUser.Jetons < stand.JetonsRequis {
+	if currentUser.Jetons <= stand.JetonsRequis {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "You don't have enough coins to do that"})
 		return
 	}

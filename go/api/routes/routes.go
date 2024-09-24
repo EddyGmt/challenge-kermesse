@@ -12,16 +12,16 @@ func AuthRoutes(r *gin.Engine) {
 	r.POST("/login", controllers.Login)
 	r.POST("/logout", controllers.Logout)
 	r.GET("/profile", middlewares.CheckAuth, controllers.UserProfile)
-	r.PUT("/update-profile", middlewares.CheckAuth, controllers.UpdateProfile)
+	r.PUT("/profile/update", middlewares.CheckAuth, controllers.UpdateProfile)
 }
 
 // CRUD User
 func UserRoutes(r *gin.Engine) {
-	r.POST("/api/user", middlewares.CheckAuth, controllers.CreateUser)
+	r.POST("/api/users", middlewares.CheckAuth, controllers.CreateUser)
 	r.GET("/api/users", middlewares.CheckAuth, controllers.GetAllUsers)
-	r.GET("/api/user/:id", middlewares.CheckAuth, controllers.GetUser)
-	r.PUT("/api/user/:id", middlewares.CheckAuth, controllers.UpdateUser)
-	r.DELETE("/api/user/:id", middlewares.CheckAuth, controllers.DeleteUser)
+	r.GET("/api/users/:id", middlewares.CheckAuth, controllers.GetUser)
+	r.PUT("/api/users/:id", middlewares.CheckAuth, controllers.UpdateUser)
+	r.DELETE("/api/users/:id", middlewares.CheckAuth, controllers.DeleteUser)
 }
 
 // CRUD Kermesse
@@ -36,6 +36,7 @@ func KermesseRoutes(r *gin.Engine) {
 // CRUD Stand
 func StandRoutes(r *gin.Engine) {
 	r.POST("/create-stand", middlewares.CheckAuth, controllers.CreateStand)
+	r.POST("/stands/:id/interact", middlewares.CheckAuth, controllers.InteractWithStand)
 	r.GET("/stands", middlewares.CheckAuth, controllers.GetAllStands)
 	r.GET("/stands/:id", middlewares.CheckAuth, controllers.GetStandById)
 	r.PUT("/stands/:id/update", middlewares.CheckAuth, controllers.UpdateStand)
@@ -51,7 +52,7 @@ func ProductRoutes(r *gin.Engine) {
 }
 
 func JetonsRoutes(r *gin.Engine) {
-	r.POST("/create-jetons", middlewares.CheckAuth, controllers.CreateJetons)
+	r.POST("/create-jeton", middlewares.CheckAuth, controllers.CreateJetons)
 	r.GET("/jetons", middlewares.CheckAuth, controllers.GetJetons)
 	r.PUT("/jetons/:id/update", middlewares.CheckAuth, controllers.UpdateJeton)
 	r.DELETE("/jetons/:id/delete", middlewares.CheckAuth, controllers.DeleteJeton)
@@ -63,4 +64,13 @@ func PaymentRoutes(r *gin.Engine) {
 
 func TransactionsRoutes(r *gin.Engine) {
 	r.GET("/transactions", middlewares.CheckAuth, controllers.GetTransactions)
+}
+
+func ParentRoutes(r *gin.Engine) {
+	r.POST("/add-children", middlewares.CheckAuth, controllers.AddChildren)
+	r.POST("/give-coins", middlewares.CheckAuth, controllers.GiveCoins)
+}
+
+func ElevesRoutes(r *gin.Engine) {
+	r.GET("/students", middlewares.CheckAuth, controllers.GetStudents)
 }

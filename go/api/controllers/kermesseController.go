@@ -31,7 +31,7 @@ func CreateKermesse(c *gin.Context) {
 	}
 
 	currentUser := user.(models.User)
-	if currentUser.Role != 1 || currentUser.Role != 2 {
+	if currentUser.Role != 1 && currentUser.Role != 2 {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "You do not have permission to do that"})
 		return
 	}
@@ -43,6 +43,10 @@ func CreateKermesse(c *gin.Context) {
 	}
 
 	if err := c.ShouldBind(&kermesse); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	if err := initializers.DB.Create(&kermesse).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -185,7 +189,6 @@ func UpdateKermesse(c *gin.Context) {
 		return
 	}
 
-	// Vérifier si l'utilisateur est admin (Role 1) ou le créateur de la kermesse
 	if currentUser.Role != 1 && kermesse.UserID != currentUser.ID {
 		c.JSON(http.StatusForbidden, gin.H{"error": "You don't have permission to update this kermesse"})
 		return
@@ -212,8 +215,7 @@ func UpdateKermesse(c *gin.Context) {
 // @Security Bearer
 // @Param Authorization header string true "Insert your access token" default(Bearer Add access token here)
 // @Param id path int true "Kermesse ID"
-// @Param kermesse body models.Kermesse true "Kermesse data"
-// @Success 200 {object} models.Kermesse "Kermesse updated"
+// @Success 200 {object} gin.H "Kermesse delete"
 // @Failure 401 {object} gin.H "User not logged"
 // @Failure 403 {object} gin.H "Forbidden"
 // @Failure 404 {object} gin.H "Kermesse not found"
@@ -229,28 +231,21 @@ func DeleteKermesse(c *gin.Context) {
 	currentUser := user.(models.User)
 	kermesseID := c.Param("id")
 
-	// Rechercher la kermesse à mettre à jour
 	var kermesse models.Kermesse
-	if err := initializers.DB.Where("id = ?", kermesseID).First(&kermesse).Error; err != nil {
+	if err := initializers.DB.First(&kermesse, "id = ?", kermesseID).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Kermesse not found"})
 		return
 	}
 
-	// Vérifier si l'utilisateur est admin (Role 1) ou le créateur de la kermesse
 	if currentUser.Role != 1 && kermesse.UserID != currentUser.ID {
 		c.JSON(http.StatusForbidden, gin.H{"error": "You don't have permission to delete this kermesse"})
 		return
 	}
 
-	if err := c.ShouldBindJSON(&kermesse); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	if err := initializers.DB.Delete(&kermesse, kermesseID).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not delete kermesse"})
 		return
 	}
 
-	if err := initializers.DB.Delete(&kermesse).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not update kermesse"})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "kermesse succefully deleted"})
+	c.JSON(http.StatusOK, gin.H{"message": "kermesse supprimé avec succès"})
 }

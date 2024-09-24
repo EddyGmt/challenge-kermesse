@@ -80,7 +80,8 @@ func UpdateJeton(c *gin.Context) {
 	}
 
 	jetonID := c.Param("id")
-	if err := initializers.DB.First("id = ? ", jetonID).Error; err != nil {
+	var jeton models.Jetons
+	if err := initializers.DB.First(&jeton, jetonID).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -123,8 +124,9 @@ func DeleteJeton(c *gin.Context) {
 	}
 
 	jetonID := c.Param("id")
-	if err := initializers.DB.First("id = ? ", jetonID).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	var jeton models.Jetons
+	if err := initializers.DB.First(&jeton, "id = ?", jetonID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "jeton not found"})
 		return
 	}
 
@@ -133,14 +135,9 @@ func DeleteJeton(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "You are not authorized to perform this action"})
 		return
 	}
-	var jeton models.Jetons
-	if err := c.BindJSON(&jeton); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
 
 	if err := initializers.DB.Delete(&jeton).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erreur lors de la suppression du jeton"})
 		return
 	}
 

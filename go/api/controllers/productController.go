@@ -135,15 +135,20 @@ func DeleteProduct(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"message": "unauthorized user"})
 		return
 	}
+	id := c.Param("id")
+	var productFound models.Product
+	if err := initializers.DB.First(&productFound, "id = ?", id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Produdct not found"})
+		return
+	}
+
 	currentUser := user.(models.User)
 	if currentUser.Role != 1 {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "You are not authorized to perform this action"})
 		return
 	}
 
-	id := c.Param("id")
-	//var productFound models.Product
-	if err := initializers.DB.Delete("id = ?", id).Error; err != nil {
+	if err := initializers.DB.Delete(&productFound, id).Error; err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"message": "product not found"})
 		return
 	}

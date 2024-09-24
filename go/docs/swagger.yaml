@@ -147,6 +147,13 @@ definitions:
           $ref: '#/definitions/models.Transaction'
         type: array
     type: object
+  requests.AddChildrenRequest:
+    properties:
+      children_ids:
+        items:
+          type: integer
+        type: array
+    type: object
   requests.KermeseRequest:
     properties:
       name:
@@ -161,6 +168,19 @@ definitions:
     required:
     - email
     - password
+    type: object
+  requests.PaymentRequest:
+    properties:
+      price:
+        type: number
+      quantity:
+        type: integer
+      type:
+        type: string
+    required:
+    - price
+    - quantity
+    - type
     type: object
   requests.SignupRequest:
     properties:
@@ -182,9 +202,56 @@ definitions:
     - last_name
     - password
     type: object
+  requests.StandRequest:
+    properties:
+      jetons-requis:
+        type: integer
+      name:
+        type: string
+      type:
+        type: string
+    required:
+    - jetons-requis
+    - name
+    - type
+    type: object
 info:
   contact: {}
 paths:
+  /add-children:
+    post:
+      consumes:
+      - application/json
+      description: Permet de créer une relation entre les parents et les enfant
+      parameters:
+      - default: Bearer Add access token here
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Ajouter un ou plusieurs enfants
+        in: body
+        name: parent
+        required: true
+        schema:
+          $ref: '#/definitions/requests.AddChildrenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "500":
+          description: Erreur serveur interne
+          schema:
+            $ref: '#/definitions/gin.H'
+      security:
+      - Bearer: []
+      summary: Créer une relation parents/enfants
+      tags:
+      - Parent
   /api/users:
     get:
       description: Récupère la liste de tous les utilisateurs
@@ -229,7 +296,7 @@ paths:
         name: user
         required: true
         schema:
-          $ref: '#/definitions/models.User'
+          $ref: '#/definitions/requests.SignupRequest'
       produces:
       - application/json
       responses:
@@ -477,7 +544,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: Permet d'interagir avec un stand en échange de jetons
+      description: Crée un nouveau stand avec les informations fournies
       parameters:
       - default: Bearer Add access token here
         description: Insert your access token
@@ -490,7 +557,7 @@ paths:
         name: stand
         required: true
         schema:
-          $ref: '#/definitions/models.Stand'
+          $ref: '#/definitions/requests.StandRequest'
       produces:
       - application/json
       responses:
@@ -504,7 +571,7 @@ paths:
             $ref: '#/definitions/gin.H'
       security:
       - Bearer: []
-      summary: Interagir avec un stand
+      summary: Crée un nouveau stand
       tags:
       - Stand
   /jetons:
@@ -703,19 +770,13 @@ paths:
         name: id
         required: true
         type: integer
-      - description: Kermesse data
-        in: body
-        name: kermesse
-        required: true
-        schema:
-          $ref: '#/definitions/models.Kermesse'
       produces:
       - application/json
       responses:
         "200":
-          description: Kermesse updated
+          description: Kermesse delete
           schema:
-            $ref: '#/definitions/models.Kermesse'
+            $ref: '#/definitions/gin.H'
         "401":
           description: User not logged
           schema:
@@ -870,8 +931,8 @@ paths:
     post:
       consumes:
       - application/json
-      description: Crée une intention de paiement pour que les parents puissent acheter
-        des jetons
+      description: Crée une intention de paiement pour acheter des jetons ou des tickets
+        de tombola
       parameters:
       - default: Bearer Add access token here
         description: Insert your access token
@@ -879,26 +940,26 @@ paths:
         name: Authorization
         required: true
         type: string
-      - description: Paiement des jetons
+      - description: Paiement des jetons ou tombola
         in: body
-        name: stand
+        name: payment
         required: true
         schema:
-          $ref: '#/definitions/models.Jetons'
+          $ref: '#/definitions/requests.PaymentRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.Jetons'
+            $ref: '#/definitions/models.Transaction'
         "500":
           description: Erreur serveur interne
           schema:
             $ref: '#/definitions/gin.H'
       security:
       - Bearer: []
-      summary: Crée une intention de paiement pour les jetons
+      summary: Crée une intention de paiement pour les jetons ou les tickets de tombola
       tags:
       - Payment
   /products:
@@ -1207,6 +1268,39 @@ paths:
       security:
       - Bearer: []
       summary: Supprime un stand par ID
+      tags:
+      - Stand
+  /stands/{id}/interact:
+    post:
+      consumes:
+      - application/json
+      description: Permet d'interagir avec un stand en échange de jetons
+      parameters:
+      - description: ID du stand
+        in: path
+        name: id
+        required: true
+        type: integer
+      - default: Bearer Add access token here
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Stand'
+        "500":
+          description: Erreur serveur interne
+          schema:
+            $ref: '#/definitions/gin.H'
+      security:
+      - Bearer: []
+      summary: Interagir avec un stand
       tags:
       - Stand
   /stands/{id}/update:

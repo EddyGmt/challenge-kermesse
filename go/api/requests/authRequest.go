@@ -6,7 +6,7 @@ type SignupRequest struct {
 	Email     string `json:"email" binding:"required"`
 	Password  string `json:"password" binding:"required"`
 	Picture   string `json:"picture"`
-	Role      int    `json:"role"`
+	Role      uint   `json:"role"`
 }
 
 type LoginRequest struct {

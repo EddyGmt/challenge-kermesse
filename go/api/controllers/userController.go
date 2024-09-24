@@ -3,6 +3,7 @@ package controllers
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"project/api/requests"
 	"project/internal/initializers"
 	"project/internal/models"
 )
@@ -14,7 +15,7 @@ import (
 // @Produce json
 // @Security Bearer
 // @Param Authorization header string true "Insert your access token" default(Bearer Add access token here)
-// @Param user body models.User true "Utilisateur à créer"
+// @Param user body requests.SignupRequest true "Utilisateur à créer"
 // @Success 200 {object} models.User
 // @Failure 500 {object} gin.H "Erreur serveur interne"
 // @Router /api/users  [post]
@@ -25,24 +26,32 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
-	currentUser := user.(*models.User)
+	currentUser := user.(models.User)
 	//Si le user n'est pas admin
 	if currentUser.Role != 1 {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "You are not authorized to perform this action"})
 		return
 	}
 
-	var createdUser models.User
-	if err := c.ShouldBindJSON(&createdUser); err != nil {
+	var createdUser requests.SignupRequest
+	newUser := models.User{
+		Firstname: createdUser.Firstname,
+		Lastname:  createdUser.Lastname,
+		Email:     createdUser.Email,
+		Password:  createdUser.Password,
+		Picture:   createdUser.Picture,
+		Role:      createdUser.Role,
+	}
+	if err := c.ShouldBindJSON(&newUser); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if err := initializers.DB.Create(&createdUser).Error; err != nil {
+	if err := initializers.DB.Create(&newUser).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"user": user})
+	c.JSON(http.StatusCreated, gin.H{"user": newUser})
 }
 
 // GetUsers - Récupère tous les utilisateurs
@@ -135,7 +144,8 @@ func UpdateUser(c *gin.Context) {
 	}
 
 	userID := c.Param("id")
-	if err := initializers.DB.First("id = ?", userID).Error; err != nil {
+	var userRetrieved models.User
+	if err := initializers.DB.First(&userRetrieved, "id = ?", userID).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -172,13 +182,14 @@ func DeleteUser(c *gin.Context) {
 		return
 	}
 	userID := c.Param("id")
+	var userRetrieved models.User
 	currentUser := user.(models.User)
 	if currentUser.Role != 1 {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "You are not authorized to perform this action"})
 		return
 	}
 
-	if err := initializers.DB.First("id = ?", userID).Error; err != nil {
+	if err := initializers.DB.First(&userRetrieved, "id = ?", userID).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "cannot find this user"})
 		return
 	}

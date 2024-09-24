@@ -17,15 +17,16 @@ import (
 // @Failure 500 {object} gin.H "Erreur serveur interne"
 // @Router /students [get]
 func GetStudents(c *gin.Context) {
-	_, exists := c.Get("user")
+	_, exists := c.Get("currentUser")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not logged"})
 		return
 	}
 
 	var students []models.User
-	if err := initializers.DB.Where("role = ?", 5).Find(&students); err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Erreur lors de la récupération des élèves"})
+
+	if err := initializers.DB.Where("role = ?", 5).Find(&students).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erreur lors de la récupération des élèves"})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"students": students})
