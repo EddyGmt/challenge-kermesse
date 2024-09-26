@@ -15,7 +15,7 @@ import (
 // @Produce json
 // @Security Bearer
 // @Param Authorization header string true "Insert your access token" default(Bearer Add access token here)
-// @Param group body requests.KermeseRequest true "Données du groupe"
+// @Param kermesse body requests.KermeseRequest true "Données de la kermesse"
 // @Success 200 {object} gin.H "Groupe créé"
 // @Failure 400 {object} gin.H "Bad request"
 // @Failure 401 {object} gin.H "Unauthorized"
@@ -79,7 +79,6 @@ func GetAllKermesses(c *gin.Context) {
 	var kermesses []models.Kermesse
 	currentUser := user.(models.User)
 
-	// Si l'utilisateur est un administrateur (Role 1), il peut voir toutes les kermesses
 	if currentUser.Role == 1 {
 		if err := initializers.DB.Preload("Organisateurs").Preload("Participants").Preload("Stands").Find(&kermesses).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -89,9 +88,7 @@ func GetAllKermesses(c *gin.Context) {
 		return
 	}
 
-	// Si l'utilisateur est un organisateur (Role 2), il peut voir ses propres kermesses et celles où il est ajouté
 	if currentUser.Role == 2 {
-		// Récupérer les kermesses créées par l'organisateur
 		if err := initializers.DB.Preload("Organisateurs").Preload("Participants").Preload("Stands").
 			Where("user_id = ?", currentUser.ID).Or("id IN (SELECT kermesse_id FROM kermesse_organisateurs WHERE user_id = ?)", currentUser.ID).
 			Find(&kermesses).Error; err != nil {
@@ -102,7 +99,6 @@ func GetAllKermesses(c *gin.Context) {
 		return
 	}
 
-	// Si l'utilisateur est un participant (Role 3 ou 4 ou autre), il peut voir les kermesses où il a été ajouté
 	if currentUser.Role >= 3 {
 		if err := initializers.DB.Preload("Organisateurs").Preload("Participants").Preload("Stands").
 			Where("id IN (SELECT kermesse_id FROM kermesse_participants WHERE user_id = ?)", currentUser.ID).
@@ -137,7 +133,6 @@ func GetKermesseById(c *gin.Context) {
 	var kermesse models.Kermesse
 	id := c.Param("id")
 
-	// Récupérer la kermesse par ID
 	if err := initializers.DB.Preload("Organisateurs").Preload("Participants").Preload("Stands").
 		Where("id = ?", id).First(&kermesse).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Kermesse not found"})
@@ -155,6 +150,181 @@ func GetKermesseById(c *gin.Context) {
 	} else {
 		c.JSON(http.StatusForbidden, gin.H{"error": "You don't have access to this kermesse"})
 	}
+}
+
+// @Summary Ajouter des stands à la kermesse
+// @Description Permet d'ajouter des users (partcicpants ou organisateurs)
+// @Tags Kermesse
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param Authorization header string true "Insert your access token" default(Bearer Add access token here)
+// @Param kermesse body requests.AddStandRequest true "Données du groupe"
+// @Success 200 {object} gin.H "Stand ajouté"
+// @Failure 400 {object} gin.H "Bad request"
+// @Failure 401 {object} gin.H "Unauthorized"
+// @Failure 404 {object} gin.H "kermesse non trouvé"
+// @Failure 409 {object} gin.H "Conflict"
+// @Failure 500 {object} gin.H "Internal server error"
+// @Router /kermesses/{id}/add-stands [post]
+func AddStand(c *gin.Context) {
+	user, exists := c.Get("currentUser")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not logged"})
+		return
+	}
+
+	kermesseID := c.Param("id")
+	var kermesse models.Kermesse
+
+	if err := initializers.DB.Preload("Organisateurs").First(&kermesse, "id = ?", kermesseID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Kermesse not found"})
+		return
+	}
+
+	currentUser := user.(models.User)
+
+	isOrganisateur := false
+	for _, organisateur := range kermesse.Organisateurs {
+		if organisateur.ID == currentUser.ID {
+			isOrganisateur = true
+			break
+		}
+	}
+
+	if currentUser.Role != 1 && currentUser.ID != kermesse.UserID && !isOrganisateur {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "You don't have the permission to do this"})
+		return
+	}
+
+	var standReq requests.AddStandRequest
+	if err := c.ShouldBindJSON(&standReq); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data"})
+		return
+	}
+
+	if len(standReq.StandIds) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "StandId is required"})
+		return
+	}
+
+	var stands []models.Stand
+	if err := initializers.DB.Where("id IN ?", standReq.StandIds).Find(&stands).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erreur lors de la récupération des enfants"})
+		return
+	}
+
+	if len(stands) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Aucun enfant trouvé pour les IDs donnés"})
+		return
+	}
+
+	if err := initializers.DB.Model(&kermesse).Association("Stands").Append(&stands); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error adding stand to kermesse"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Stand added successfully",
+		"stand":   stands,
+	})
+}
+
+// @Summary Ajouter des users à la kermesse
+// @Description Permet aux user de créé un groupe de groupeVoyage
+// @Tags Kermesse
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param Authorization header string true "Insert your access token" default(Bearer Add access token here)
+// @Param kermesse body requests.AddStandRequest true "Données du groupe"
+// @Success 200 {object} gin.H "User ajouté(s)"
+// @Failure 400 {object} gin.H "Bad request"
+// @Failure 401 {object} gin.H "Unauthorized"
+// @Failure 404 {object} gin.H "kermesse non trouvé"
+// @Failure 409 {object} gin.H "Conflict"
+// @Failure 500 {object} gin.H "Internal server error"
+// @Router /kermesses/{id}/add-users [post]
+func AddParticipantAndOrga(c *gin.Context) {
+	user, exists := c.Get("currentUser")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not logged"})
+		return
+	}
+
+	kermesseID := c.Param("id")
+	var kermesse models.Kermesse
+
+	if err := initializers.DB.Preload("Organisateurs").First(&kermesse, "id = ?", kermesseID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Kermesse not found"})
+		return
+	}
+
+	var users []models.User
+	currentUser := user.(models.User)
+
+	isOrganisateur := false
+	for _, organisateur := range kermesse.Organisateurs {
+		if organisateur.ID == currentUser.ID {
+			isOrganisateur = true
+			break
+		}
+	}
+
+	if currentUser.Role != 1 && currentUser.ID != kermesse.UserID && !isOrganisateur {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "You don't have the permission to do this"})
+		return
+	}
+
+	var userReq requests.AddUserRequest
+	if err := c.ShouldBindJSON(&userReq); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data"})
+		return
+	}
+
+	if userReq.Type == "participants" {
+		if len(userReq.UserIds) == 0 {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "UserIds are required"})
+			return
+		}
+
+		if err := initializers.DB.Where("id IN ?", userReq.UserIds).Find(&users).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Erreur lors de la récupération des enfants"})
+			return
+		}
+
+		if len(users) == 0 {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Aucun enfant trouvé pour les IDs donnés"})
+			return
+		}
+
+		if err := initializers.DB.Model(&kermesse).Association("Participants").Append(&users); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error adding a participant to kermesse"})
+			return
+		}
+	} else if userReq.Type == "organisateurs" {
+		if len(userReq.UserIds) == 0 {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "UserIds are required"})
+			return
+		}
+
+		if err := initializers.DB.Where("id IN ?", userReq.UserIds).Find(&users).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Erreur lors de la récupération des enfants"})
+			return
+		}
+
+		if len(users) == 0 {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Aucun enfant trouvé pour les IDs donnés"})
+			return
+		}
+
+		if err := initializers.DB.Model(&kermesse).Association("Participants").Append(&users); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error adding a participant to kermesse"})
+			return
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Users added successfully"})
 }
 
 // @Summary Update a Kermesse

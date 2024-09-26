@@ -31,6 +31,8 @@ func KermesseRoutes(r *gin.Engine) {
 	r.GET("/kermesses/:id", middlewares.CheckAuth, controllers.GetKermesseById)
 	r.PUT("/kermesses/:id/update", middlewares.CheckAuth, controllers.UpdateKermesse)
 	r.DELETE("/kermesses/:id/delete", middlewares.CheckAuth, controllers.DeleteKermesse)
+	r.POST("/kermesses/:id/add-stands", middlewares.CheckAuth, controllers.AddStand)
+	r.POST("/kermesses/:id/add-users", middlewares.CheckAuth, controllers.AddParticipantAndOrga)
 }
 
 // CRUD Stand

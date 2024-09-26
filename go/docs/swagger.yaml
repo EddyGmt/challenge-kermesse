@@ -169,6 +169,15 @@ definitions:
           type: integer
         type: array
     type: object
+  requests.AddStandRequest:
+    properties:
+      stand_ids:
+        items:
+          type: integer
+        type: array
+    required:
+    - stand_ids
+    type: object
   requests.GiveCoinRequest:
     properties:
       nb_jetons:
@@ -488,9 +497,9 @@ paths:
         name: Authorization
         required: true
         type: string
-      - description: Données du groupe
+      - description: Données de la kermesse
         in: body
-        name: group
+        name: kermesse
         required: true
         schema:
           $ref: '#/definitions/requests.KermeseRequest'
@@ -771,6 +780,106 @@ paths:
       security:
       - Bearer: []
       summary: Get a Kermesse by its ID
+      tags:
+      - Kermesse
+  /kermesses/{id}/add-stands:
+    post:
+      consumes:
+      - application/json
+      description: Permet d'ajouter des users (partcicpants ou organisateurs)
+      parameters:
+      - default: Bearer Add access token here
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Données du groupe
+        in: body
+        name: kermesse
+        required: true
+        schema:
+          $ref: '#/definitions/requests.AddStandRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Stand ajouté
+          schema:
+            $ref: '#/definitions/gin.H'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/gin.H'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/gin.H'
+        "404":
+          description: kermesse non trouvé
+          schema:
+            $ref: '#/definitions/gin.H'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/gin.H'
+      security:
+      - Bearer: []
+      summary: Ajouter des stands à la kermesse
+      tags:
+      - Kermesse
+  /kermesses/{id}/add-users:
+    post:
+      consumes:
+      - application/json
+      description: Permet aux user de créé un groupe de groupeVoyage
+      parameters:
+      - default: Bearer Add access token here
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Données du groupe
+        in: body
+        name: kermesse
+        required: true
+        schema:
+          $ref: '#/definitions/requests.AddStandRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User ajouté(s)
+          schema:
+            $ref: '#/definitions/gin.H'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/gin.H'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/gin.H'
+        "404":
+          description: kermesse non trouvé
+          schema:
+            $ref: '#/definitions/gin.H'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/gin.H'
+      security:
+      - Bearer: []
+      summary: Ajouter des users à la kermesse
       tags:
       - Kermesse
   /kermesses/{id}/delete:
