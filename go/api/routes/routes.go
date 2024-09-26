@@ -68,7 +68,7 @@ func TransactionsRoutes(r *gin.Engine) {
 
 func ParentRoutes(r *gin.Engine) {
 	r.POST("/add-children", middlewares.CheckAuth, controllers.AddChildren)
-	r.POST("/give-coins", middlewares.CheckAuth, controllers.GiveCoins)
+	r.POST("/users/:id/give-coins", middlewares.CheckAuth, controllers.GiveCoins)
 }
 
 func ElevesRoutes(r *gin.Engine) {

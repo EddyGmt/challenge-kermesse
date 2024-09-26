@@ -6,6 +6,7 @@ import (
 	"project/api/requests"
 	"project/internal/initializers"
 	"project/internal/models"
+	"strconv"
 )
 
 // @Summary Créer une relation parents/enfants
@@ -20,8 +21,8 @@ import (
 // @Failure 500 {object} gin.H "Erreur serveur interne"
 // @Router /add-children [post]
 func AddChildren(c *gin.Context) {
-	user, exists := c.Get("currentuser")
-	if exists {
+	user, exists := c.Get("currentUser")
+	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not logged in"})
 	}
 
@@ -57,6 +58,10 @@ func AddChildren(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erreur lors de l'ajout des enfants"})
 		return
 	}
+	if err := initializers.DB.Model(&children).Association("Parents").Append(currentUser); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Errue lors de l'ajout de parent"})
+		return
+	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"message":  "Enfants ajoutés avec succès",
@@ -64,8 +69,22 @@ func AddChildren(c *gin.Context) {
 	})
 }
 
+// @Summary Transférer des jetons aux enfants
+// @Description Permet à un parent de transférer des jetons à ses enfants
+// @Tags Parent
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param Authorization header string true "Insert your access token" default(Bearer Add access token here)
+// @Param id path uint true "ID de l'enfant"
+// @Param transaction body requests.GiveCoinRequest true "Détails du transfert de jetons (seulement la quantité de jetons)"
+// @Success 200 {object} gin.H
+// @Failure 400 {object} gin.H "Mauvaise requête"
+// @Failure 401 {object} gin.H "Non autorisé"
+// @Failure 404 {object} gin.H "Enfant non trouvé"
+// @Failure 500 {object} gin.H "Erreur serveur interne"
+// @Router /users/{id}/give-coins [post]
 func GiveCoins(c *gin.Context) {
-	// Récupérer l'utilisateur connecté
 	user, exists := c.Get("currentUser")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not logged in"})
@@ -79,27 +98,34 @@ func GiveCoins(c *gin.Context) {
 		return
 	}
 
-	// Récupérer l'ID de l'enfant depuis les paramètres ou le corps de la requête
-	var input struct {
-		EnfantID uint `json:"enfant_id"`
-		Jetons   uint `json:"jetons"`
+	enfantIDParam := c.Param("id")
+	enfantID, err := strconv.ParseUint(enfantIDParam, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid child ID"})
+		return
 	}
-	if err := c.ShouldBindJSON(&input); err != nil {
+
+	var req requests.GiveCoinRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
 		return
 	}
 
-	// Vérifier que l'enfant est bien lié au parent
 	var enfant models.User
-	if err := initializers.DB.Where("id = ?", input.EnfantID).First(&enfant).Error; err != nil {
+	if err := initializers.DB.Where("id = ?", enfantID).First(&enfant).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Child not found"})
 		return
 	}
 
-	// Vérifier que l'enfant est bien dans la liste des enfants du parent
+	var children []models.User
+	if err := initializers.DB.Model(&currentUser).Association("Enfants").Find(&children); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erreur lors de la récupération des enfants"})
+		return
+	}
+
 	isChildLinked := false
-	for _, child := range currentUser.Enfants {
-		if child.ID == enfant.ID {
+	for _, child := range children {
+		if child.ID == uint(enfantID) {
 			isChildLinked = true
 			break
 		}
@@ -111,14 +137,14 @@ func GiveCoins(c *gin.Context) {
 	}
 
 	// Vérifier si le parent a suffisamment de jetons
-	if currentUser.Jetons < input.Jetons {
+	if currentUser.Jetons < req.NbJetons {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "You do not have enough coins"})
 		return
 	}
 
 	// Déduire les jetons du parent et les ajouter à l'enfant
-	currentUser.Jetons -= input.Jetons
-	enfant.Jetons += input.Jetons
+	currentUser.Jetons -= req.NbJetons
+	enfant.Jetons += req.NbJetons
 
 	// Sauvegarder les modifications dans la base de données
 	if err := initializers.DB.Save(&currentUser).Error; err != nil {

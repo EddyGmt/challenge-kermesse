@@ -18,4 +18,5 @@ type User struct {
 	Kermesses    []Kermesse    `gorm:"foreignKey:UserID" json:"kermesses"`
 	Stands       []Stand       `gorm:"foreignKey:UserID" json:"stands"`
 	Transactions []Transaction `gorm:"foreignKey:UserID" json:"transactions"`
+	Historique   []History     `gorm:"foreignKey:UserID" json:"historique"`
 }

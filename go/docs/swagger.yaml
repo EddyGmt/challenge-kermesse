@@ -2,6 +2,17 @@ definitions:
   gin.H:
     additionalProperties: {}
     type: object
+  models.History:
+    properties:
+      date:
+        type: string
+      id:
+        type: integer
+      stand_name:
+        type: string
+      user_id:
+        type: integer
+    type: object
   models.Jetons:
     properties:
       id:
@@ -113,6 +124,10 @@ definitions:
         type: array
       firstname:
         type: string
+      historique:
+        items:
+          $ref: '#/definitions/models.History'
+        type: array
       id:
         type: integer
       jetons:
@@ -153,6 +168,11 @@ definitions:
         items:
           type: integer
         type: array
+    type: object
+  requests.GiveCoinRequest:
+    properties:
+      nb_jetons:
+        type: integer
     type: object
   requests.KermeseRequest:
     properties:
@@ -1402,4 +1422,55 @@ paths:
       summary: Récupère toutes les transactions faites par le user
       tags:
       - Transactions
+  /users/{id}/give-coins:
+    post:
+      consumes:
+      - application/json
+      description: Permet à un parent de transférer des jetons à ses enfants
+      parameters:
+      - default: Bearer Add access token here
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: ID de l'enfant
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Détails du transfert de jetons (seulement la quantité de jetons)
+        in: body
+        name: transaction
+        required: true
+        schema:
+          $ref: '#/definitions/requests.GiveCoinRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gin.H'
+        "400":
+          description: Mauvaise requête
+          schema:
+            $ref: '#/definitions/gin.H'
+        "401":
+          description: Non autorisé
+          schema:
+            $ref: '#/definitions/gin.H'
+        "404":
+          description: Enfant non trouvé
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Erreur serveur interne
+          schema:
+            $ref: '#/definitions/gin.H'
+      security:
+      - Bearer: []
+      summary: Transférer des jetons aux enfants
+      tags:
+      - Parent
 swagger: "2.0"

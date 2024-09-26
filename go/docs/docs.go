@@ -1844,12 +1844,107 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/users/{id}/give-coins": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Permet à un parent de transférer des jetons à ses enfants",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Parent"
+                ],
+                "summary": "Transférer des jetons aux enfants",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "Bearer Add access token here",
+                        "description": "Insert your access token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "ID de l'enfant",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Détails du transfert de jetons (seulement la quantité de jetons)",
+                        "name": "transaction",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/requests.GiveCoinRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "400": {
+                        "description": "Mauvaise requête",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "401": {
+                        "description": "Non autorisé",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "404": {
+                        "description": "Enfant non trouvé",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur serveur interne",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
         "gin.H": {
             "type": "object",
             "additionalProperties": {}
+        },
+        "models.History": {
+            "type": "object",
+            "properties": {
+                "date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "stand_name": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
         },
         "models.Jetons": {
             "type": "object",
@@ -2018,6 +2113,12 @@ const docTemplate = `{
                 "firstname": {
                     "type": "string"
                 },
+                "historique": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.History"
+                    }
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -2073,6 +2174,14 @@ const docTemplate = `{
                     "items": {
                         "type": "integer"
                     }
+                }
+            }
+        },
+        "requests.GiveCoinRequest": {
+            "type": "object",
+            "properties": {
+                "nb_jetons": {
+                    "type": "integer"
                 }
             }
         },

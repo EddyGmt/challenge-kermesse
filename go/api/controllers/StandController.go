@@ -6,6 +6,7 @@ import (
 	"project/api/requests"
 	"project/internal/initializers"
 	"project/internal/models"
+	"time"
 )
 
 // @Summary Crée un nouveau stand
@@ -225,6 +226,18 @@ func InteractWithStand(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
+	var historique = models.History{
+		Date:      time.Now(),
+		StandName: stand.Name,
+		UserID:    currentUser.ID,
+	}
+
+	if err := initializers.DB.Create(&historique).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"stand":       stand.Conso,
 		"jetons user": currentUser.Jetons,
