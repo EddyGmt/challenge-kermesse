@@ -38,6 +38,8 @@ definitions:
         items:
           $ref: '#/definitions/models.User'
         type: array
+      picture:
+        type: string
       stands:
         items:
           $ref: '#/definitions/models.Stand'
@@ -187,6 +189,8 @@ definitions:
     properties:
       name:
         type: string
+      picture:
+        type: string
     type: object
   requests.LoginRequest:
     properties:
@@ -233,14 +237,14 @@ definitions:
     type: object
   requests.StandRequest:
     properties:
-      jetons-requis:
+      jetons_requis:
         type: integer
       name:
         type: string
       type:
         type: string
     required:
-    - jetons-requis
+    - jetons_requis
     - name
     - type
     type: object
@@ -472,8 +476,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Created
           schema:
             $ref: '#/definitions/models.Jetons'
         "500":
@@ -556,8 +560,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Created
           schema:
             $ref: '#/definitions/models.Product'
         "500":

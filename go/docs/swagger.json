@@ -357,8 +357,8 @@
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "OK",
+                    "201": {
+                        "description": "Created",
                         "schema": {
                             "$ref": "#/definitions/models.Jetons"
                         }
@@ -487,8 +487,8 @@
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "OK",
+                    "201": {
+                        "description": "Created",
                         "schema": {
                             "$ref": "#/definitions/models.Product"
                         }
@@ -2125,6 +2125,9 @@
                         "$ref": "#/definitions/models.User"
                     }
                 },
+                "picture": {
+                    "type": "string"
+                },
                 "stands": {
                     "type": "array",
                     "items": {
@@ -2347,6 +2350,9 @@
             "properties": {
                 "name": {
                     "type": "string"
+                },
+                "picture": {
+                    "type": "string"
                 }
             }
         },
@@ -2416,12 +2422,12 @@
         "requests.StandRequest": {
             "type": "object",
             "required": [
-                "jetons-requis",
+                "jetons_requis",
                 "name",
                 "type"
             ],
             "properties": {
-                "jetons-requis": {
+                "jetons_requis": {
                     "type": "integer"
                 },
                 "name": {
