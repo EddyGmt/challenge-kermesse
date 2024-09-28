@@ -110,7 +110,14 @@ func GetUser(c *gin.Context) {
 
 	userID := c.Param("id")
 	var userRetrieved models.User
-	if err := initializers.DB.First(&userRetrieved, "id = ?", userID).Error; err != nil {
+	if err := initializers.DB.First(&userRetrieved, "id = ?", userID).
+		Preload("Parents").
+		Preload("Enfants").
+		Preload("Kermesses").
+		Preload("Stands").
+		Preload("Transactions").
+		Preload("Historique").
+		First(&userRetrieved, "id = ?", userID).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

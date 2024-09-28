@@ -101,7 +101,7 @@ func GetStandById(c *gin.Context) {
 
 	standID := c.Param("id")
 	var standRetrieved models.Stand
-	if err := initializers.DB.First(&standRetrieved, standID).Error; err != nil {
+	if err := initializers.DB.First(&standRetrieved, standID).Preload("Stock").Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
