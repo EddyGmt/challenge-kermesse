@@ -139,7 +139,22 @@ func Logout(c *gin.Context) {
 // @Router /profile [get]
 func UserProfile(c *gin.Context) {
 	currentUser, _ := c.Get("currentUser")
-	c.JSON(http.StatusOK, gin.H{"user": currentUser})
+	user := currentUser.(models.User)
+
+	var userProfile models.User
+
+	if err := initializers.DB.Preload("Parents").
+		Preload("Enfants").
+		Preload("Kermesses").
+		Preload("Stands").
+		Preload("Transactions").
+		Preload("Historique").
+		First(&userProfile, "id = ?", user.ID).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"user": userProfile})
 }
 
 // @Summary Mise à jour du profil
