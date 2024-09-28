@@ -15,7 +15,7 @@ import (
 // @Security Bearer
 // @Param Authorization header string true "Insert your access token" default(Bearer Add access token here)
 // @Param user body models.Jetons true "Jeton à créer"
-// @Success 200 {object} models.Jetons
+// @Success 201 {object} models.Jetons
 // @Failure 500 {object} gin.H "Erreur serveur interne"
 // @Router /create-jeton  [post]
 func CreateJetons(c *gin.Context) {

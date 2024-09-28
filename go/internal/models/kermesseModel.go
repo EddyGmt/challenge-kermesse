@@ -1,8 +1,9 @@
 package models
 
 type Kermesse struct {
-	ID   uint   `gorm:"primary_key; not null; autoIncrement" json:"id"`
-	Name string `gorm:"size:64; not null" json:"name"`
+	ID      uint   `gorm:"primary_key; not null; autoIncrement" json:"id"`
+	Name    string `gorm:"size:64; not null" json:"name"`
+	Picture string `gorm:"size:64" json:"picture"`
 
 	Stands []Stand `gorm:"many2many:kermesse_stands;" json:"stands"`
 

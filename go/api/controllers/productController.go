@@ -15,7 +15,7 @@ import (
 // @Security Bearer
 // @Param Authorization header string true "Insert your access token" default(Bearer Add access token here)
 // @Param product body models.Product true "Produit à créer"
-// @Success 200 {object} models.Product
+// @Success 201 {object} models.Product
 // @Failure 500 {object} gin.H "Erreur serveur interne"
 // @Router /create-product  [post]
 func CreateProduct(c *gin.Context) {
