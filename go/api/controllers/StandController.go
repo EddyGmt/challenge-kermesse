@@ -216,13 +216,13 @@ func InteractWithStand(c *gin.Context) {
 	}
 
 	stand.Conso = currentUser.Jetons - stand.JetonsRequis
-	if err := initializers.DB.Save(&stand).Error; err != nil {
+	if err := initializers.DB.Save(&stand.Conso).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	currentUser.Jetons -= stand.JetonsRequis
-	if err := initializers.DB.Save(&currentUser).Error; err != nil {
+	if err := initializers.DB.Save(&currentUser.Jetons).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
