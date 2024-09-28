@@ -1,20 +1,26 @@
 import 'dart:core';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:kermesse_app/models/requests/signupRequest.dart';
 import 'dart:convert';
+import '../config/app_config.dart';
 import '../models/user.dart';
 
-class AuthService{
-  //TODO revoir les routes afin de faire les appels api
-  final String = "https://locahost:8080";
-  final _storage = new FlutterSecureStorage();
+class AuthService extends ChangeNotifier{
+  final FlutterSecureStorage _storage = FlutterSecureStorage();
+  final apiAuthority = AppConfig.getApiAuthority();
+  final isSecure = AppConfig.isSecure();
+  User? _currentUser;
 
   //Méthode de signup
   Future<User?> signup(Signuprequest newUser) async{
     try{
+      final url = isSecure
+          ? Uri.https(apiAuthority, '/signup')
+          : Uri.http(apiAuthority, '/signup');
       final response = await http.post(
-          Uri.parse('/signup'),
+          url,
           headers : {"Content-Type": "application/json"},
           body: jsonEncode(newUser.toJson())
       );
@@ -30,10 +36,13 @@ class AuthService{
   }
 
   //Login
-  Future<bool> login(email, password)async{
+  Future<bool> login(String email,String password)async{
     try{
+      final url = isSecure
+          ? Uri.https(apiAuthority, '/login')
+          : Uri.http(apiAuthority, '/login');
       final response = await http.post(
-        Uri.parse("/login"),
+        url,
         headers: {"Content-type": "application/json"},
         body: jsonEncode({
           "email": email,
@@ -58,10 +67,13 @@ class AuthService{
   //Profile
   Future<User?> profile()async{
     try{
+      final url = isSecure
+          ? Uri.https(apiAuthority, '/profile')
+          : Uri.http(apiAuthority, '/profile');
       String? token = await _storage.read(key: 'auth_token');
       if (token != null){
         final response = await http.get(
-            Uri.parse("/profile"),
+            url,
             headers: {
               "Content-Type":"application/json",
               "Authorization":"Bearer $token"

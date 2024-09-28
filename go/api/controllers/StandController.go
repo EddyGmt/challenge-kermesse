@@ -17,7 +17,7 @@ import (
 // @Security Bearer
 // @Param Authorization header string true "Insert your access token" default(Bearer Add access token here)
 // @Param stand body requests.StandRequest true "Stand à créer"
-// @Success 200 {object} models.Stand
+// @Success 201 {object} models.Stand
 // @Failure 500 {object} gin.H "Erreur serveur interne"
 // @Router /create-stand [post]
 func CreateStand(c *gin.Context) {

@@ -20,7 +20,7 @@ import (
 // @Security Bearer
 // @Param Authorization header string true "Insert your access token" default(Bearer Add access token here)
 // @Param payment body requests.PaymentRequest true "Paiement des jetons ou tombola"
-// @Success 200 {object} models.Transaction
+// @Success 201 {object} models.Transaction
 // @Failure 500 {object} gin.H "Erreur serveur interne"
 // @Router /payment [post]
 func Payment(c *gin.Context) {

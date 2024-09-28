@@ -83,7 +83,7 @@ func AddChildren(c *gin.Context) {
 // @Failure 401 {object} gin.H "Non autorisé"
 // @Failure 404 {object} gin.H "Enfant non trouvé"
 // @Failure 500 {object} gin.H "Erreur serveur interne"
-// @Router /users/{id}/give-coins [post]
+// @Router /api/users/{id}/give-coins [post]
 func GiveCoins(c *gin.Context) {
 	user, exists := c.Get("currentUser")
 	if !exists {

@@ -2,39 +2,40 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:kermesse_app/models/requests/kermesseRequest.dart';
-import '../config/app_config.dart';
-import '../models/kermesse.dart';
 import 'package:http/http.dart' as http;
+import 'package:kermesse_app/models/requests/standRequest.dart';
+import 'package:kermesse_app/models/stand.dart';
+
+import '../config/app_config.dart';
 
 
-class KermesseServicec extends ChangeNotifier{
+class KermesseService extends ChangeNotifier{
   final FlutterSecureStorage _storage = FlutterSecureStorage();
   final apiAuthority = AppConfig.getApiAuthority();
   final isSecure = AppConfig.isSecure();
 
 
   //Création de kermesse
-  Future<Kermesse?> createKermesse(KermesseRequest kermesse)async{
+  Future<Stand?> createStand(StandRequest newStand)async{
     try{
       final url = isSecure
-          ? Uri.https(apiAuthority, '/create-kermesse')
-          : Uri.http(apiAuthority, '/create-kermesse');
-      String? token = await _storage.read(key: 'auth_token');
+          ? Uri.https(apiAuthority, '/create-stand')
+          : Uri.http(apiAuthority, '/create-stand');
+      final token = await _storage.read(key: 'auth_token');
       if(token != null){
         final response = await http.post(
             url,
             headers: {
-            "Content-Type":"application/json",
-            "Auhtorization": "Bearer $token"
-          },
-          body: jsonEncode(kermesse)
+              "Content-Type":"application/json",
+              "Auhtorization": "Bearer $token"
+            },
+            body: jsonEncode(newStand)
         );
 
         if(response.statusCode == 201){
           final responseData = jsonDecode(response.body);
-          Kermesse newKermesse = Kermesse.fromJson(responseData);
-          return newKermesse;
+          Stand stand = Stand.fromJson(responseData);
+          return stand;
         }else{
           print("Erreur de requête: ${response.statusCode}");
           return null;
@@ -47,30 +48,30 @@ class KermesseServicec extends ChangeNotifier{
     }
   }
 
-  //Récupérer toutes kermesses
-  Future<List<Kermesse>> getKermesses()async{
+  //Récupérer tous les stands
+  Future<List<Stand>> getStands()async{
     try{
       final url = isSecure
-          ? Uri.https(apiAuthority, '/kermesses')
-          : Uri.http(apiAuthority, '/kermesses');
-      String? token = await _storage.read(key: 'auth_token');
+          ? Uri.https(apiAuthority, '/stands')
+          : Uri.http(apiAuthority, '/stands');
+      final token = await _storage.read(key: 'auth_token');
       if(token != null){
         final response = await http.get(
-          url,
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer $token"
-          }
+            url,
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer $token"
+            }
         );
 
         if(response.statusCode == 200){
-          var kermesseJson = jsonDecode(response.body) as List;
-          List<Kermesse> kermesses = kermesseJson.map(
-              (element){
-                return Kermesse.fromJson(element);
+          var standJson = jsonDecode(response.body) as List;
+          List<Stand> stands = standJson.map(
+                  (element){
+                return Stand.fromJson(element);
               }
           ).toList();
-          return kermesses;
+          return stands;
         }else{
           print("Erreur sur la récupération des jetons: ${response.statusCode}");
           return [];
@@ -84,12 +85,12 @@ class KermesseServicec extends ChangeNotifier{
     }
   }
 
-  Future<Kermesse?> getKermessebyId(int id)async{
+  Future<Stand?> getKermessebyId(int id)async{
     try{
       final url = isSecure
-          ? Uri.https(apiAuthority, '/kermesses/$id')
-          : Uri.http(apiAuthority, '/kermesses/$id');
-      String? token = await _storage.read(key: 'auth_token');
+          ? Uri.https(apiAuthority, '/stands/$id')
+          : Uri.http(apiAuthority, '/stands/$id');
+      final token = await _storage.read(key: 'auth_token');
       if(token != null){
         final response = await http.get(
             url,
@@ -100,8 +101,8 @@ class KermesseServicec extends ChangeNotifier{
         );
         if(response.statusCode == 200){
           var responseData = jsonDecode(response.body);
-          Kermesse kermesse = Kermesse.fromJson(responseData);
-          return kermesse;
+          Stand stand = Stand.fromJson(responseData);
+          return stand;
         }else{
           print("Erreur sur la récupération des jetons: ${response.statusCode}");
           return null;
@@ -114,13 +115,13 @@ class KermesseServicec extends ChangeNotifier{
       rethrow;
     }
   }
-  //TODO update de la kermesse
+  //TODO update d'un stand
 
-  Future<bool> deleteKermesse(int id)async{
+  Future<bool> deleteStand(int id)async{
     try{
       final url = isSecure
-          ? Uri.https(apiAuthority, '/kermesses/$id/delete')
-          : Uri.http(apiAuthority, '/kermesses/$id/delete');
+          ? Uri.https(apiAuthority, '/stands/$id/delete')
+          : Uri.http(apiAuthority, '/stands/$id/delete');
       final token = await _storage.read(key: 'auth_token');
       if(token != null){
         final reponse = await http.delete(
@@ -144,7 +145,5 @@ class KermesseServicec extends ChangeNotifier{
       rethrow;
     }
   }
-
-  //todo add stands
-  //todo add participants
+  //TODO interact with stands
 }

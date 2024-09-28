@@ -333,8 +333,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Created
           schema:
             $ref: '#/definitions/models.User'
         "500":
@@ -455,6 +455,57 @@ paths:
       summary: Met à jour un utilisateur par ID
       tags:
       - User
+  /api/users/{id}/give-coins:
+    post:
+      consumes:
+      - application/json
+      description: Permet à un parent de transférer des jetons à ses enfants
+      parameters:
+      - default: Bearer Add access token here
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: ID de l'enfant
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Détails du transfert de jetons (seulement la quantité de jetons)
+        in: body
+        name: transaction
+        required: true
+        schema:
+          $ref: '#/definitions/requests.GiveCoinRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gin.H'
+        "400":
+          description: Mauvaise requête
+          schema:
+            $ref: '#/definitions/gin.H'
+        "401":
+          description: Non autorisé
+          schema:
+            $ref: '#/definitions/gin.H'
+        "404":
+          description: Enfant non trouvé
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Erreur serveur interne
+          schema:
+            $ref: '#/definitions/gin.H'
+      security:
+      - Bearer: []
+      summary: Transférer des jetons aux enfants
+      tags:
+      - Parent
   /create-jeton:
     post:
       consumes:
@@ -510,7 +561,7 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
+        "201":
           description: Groupe créé
           schema:
             $ref: '#/definitions/gin.H'
@@ -594,8 +645,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Created
           schema:
             $ref: '#/definitions/models.Stand'
         "500":
@@ -1082,8 +1133,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Created
           schema:
             $ref: '#/definitions/models.Transaction'
         "500":
@@ -1535,55 +1586,4 @@ paths:
       summary: Récupère toutes les transactions faites par le user
       tags:
       - Transactions
-  /users/{id}/give-coins:
-    post:
-      consumes:
-      - application/json
-      description: Permet à un parent de transférer des jetons à ses enfants
-      parameters:
-      - default: Bearer Add access token here
-        description: Insert your access token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: ID de l'enfant
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Détails du transfert de jetons (seulement la quantité de jetons)
-        in: body
-        name: transaction
-        required: true
-        schema:
-          $ref: '#/definitions/requests.GiveCoinRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/gin.H'
-        "400":
-          description: Mauvaise requête
-          schema:
-            $ref: '#/definitions/gin.H'
-        "401":
-          description: Non autorisé
-          schema:
-            $ref: '#/definitions/gin.H'
-        "404":
-          description: Enfant non trouvé
-          schema:
-            $ref: '#/definitions/gin.H'
-        "500":
-          description: Erreur serveur interne
-          schema:
-            $ref: '#/definitions/gin.H'
-      security:
-      - Bearer: []
-      summary: Transférer des jetons aux enfants
-      tags:
-      - Parent
 swagger: "2.0"

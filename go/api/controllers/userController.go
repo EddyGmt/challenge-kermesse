@@ -16,7 +16,7 @@ import (
 // @Security Bearer
 // @Param Authorization header string true "Insert your access token" default(Bearer Add access token here)
 // @Param user body requests.SignupRequest true "Utilisateur à créer"
-// @Success 200 {object} models.User
+// @Success 201 {object} models.User
 // @Failure 500 {object} gin.H "Erreur serveur interne"
 // @Router /api/users  [post]
 func CreateUser(c *gin.Context) {

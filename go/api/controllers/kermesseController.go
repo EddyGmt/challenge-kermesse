@@ -16,7 +16,7 @@ import (
 // @Security Bearer
 // @Param Authorization header string true "Insert your access token" default(Bearer Add access token here)
 // @Param kermesse body requests.KermeseRequest true "Données de la kermesse"
-// @Success 200 {object} gin.H "Groupe créé"
+// @Success 201 {object} gin.H "Groupe créé"
 // @Failure 400 {object} gin.H "Bad request"
 // @Failure 401 {object} gin.H "Unauthorized"
 // @Failure 404 {object} gin.H "Voyage non trouvé"

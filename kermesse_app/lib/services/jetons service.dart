@@ -1,20 +1,25 @@
 import 'dart:convert';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../config/app_config.dart';
 import '../models/jetons.dart';
 import 'package:http/http.dart' as http;
 
-class JetonsService{
-  final String = "https://locahost:8080";
-  final _storage = new FlutterSecureStorage();
-  late Jetons jetons;
+class JetonsService extends ChangeNotifier{
+  final FlutterSecureStorage _storage = FlutterSecureStorage();
+  final apiAuthority = AppConfig.getApiAuthority();
+  final isSecure = AppConfig.isSecure();
 
   //Créqtion de jetons
   Future<Jetons?> createJetons(Jetons jetons)async{
     try{
-      final token = await _storage.read(key: 'auth_token');
+      final url = isSecure
+          ? Uri.https(apiAuthority, '/create-jeton')
+          : Uri.http(apiAuthority, '/create-jeton');
+      String? token = await _storage.read(key: 'auth_token');
       if (token != null){
         final response = await http.post(
-          Uri.parse("/create-jeton"),
+          url,
           headers: {
             "Content-Type":"application/json",
             "Authorization":"Bearer $token"
@@ -39,20 +44,27 @@ class JetonsService{
   }
 
   //Récupérations des jetons
-  Future<Jetons?> getJetons() async{
+  Future<List<Jetons>> getJetons() async{
     try{
+      final url = isSecure
+          ? Uri.https(apiAuthority, '/jetons')
+          : Uri.http(apiAuthority, '/jetons');
       final response = await http.get(
-        Uri.parse("/jetons"),
+        url,
         headers : {"Content-Type" : "application/json"}
       );
       if(response.statusCode == 200){
-        var responseData = jsonDecode(response.body);
-        Jetons jetons = Jetons.fromJson(responseData);
+        var jetonsJson = jsonDecode(response.body) as List;
+        List<Jetons> jetons = jetonsJson.map(
+            (element){
+              return Jetons.fromJson(element);
+            }
+        ).toList();
         print(jetons);
         return jetons;
       }else{
         print("Erreur sur la récupération des jetons: ${response.statusCode}");
-        return null;
+        return [];
       }
     }catch(e){
       rethrow;
@@ -64,15 +76,17 @@ class JetonsService{
   //Supprimer jeton
   Future<bool> deleteJetons(int id)async{
     try{
-      final token = await _storage.read(key: 'auth_token');
+      final url = isSecure
+          ? Uri.https(apiAuthority, '/jetons/$id/delete')
+          : Uri.http(apiAuthority, '/jetons/$id/delete');
+      String? token = await _storage.read(key: 'auth_token');
       if (token != null){
         final response = await http.delete(
-          Uri.parse("/jetons/$id/delete"),
+          url,
           headers: {
             "Content-Type":"application/json",
             "Authorization":"Bearer $token"
           },
-          //body : jsonEncode(jetons.toJson()),
         );
         if(response.statusCode == 200){
           return true;
