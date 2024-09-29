@@ -15,7 +15,6 @@ func AuthRoutes(r *gin.Engine) {
 	r.PUT("/profile/update", middlewares.CheckAuth, controllers.UpdateProfile)
 }
 
-// CRUD User
 func UserRoutes(r *gin.Engine) {
 	r.POST("/api/users", middlewares.CheckAuth, controllers.CreateUser)
 	r.GET("/api/users", middlewares.CheckAuth, controllers.GetAllUsers)
@@ -24,7 +23,6 @@ func UserRoutes(r *gin.Engine) {
 	r.DELETE("/api/users/:id", middlewares.CheckAuth, controllers.DeleteUser)
 }
 
-// CRUD Kermesse
 func KermesseRoutes(r *gin.Engine) {
 	r.POST("/create-kermesse", middlewares.CheckAuth, controllers.CreateKermesse)
 	r.GET("/kermesses", middlewares.CheckAuth, controllers.GetAllKermesses)
@@ -35,7 +33,6 @@ func KermesseRoutes(r *gin.Engine) {
 	r.POST("/kermesses/:id/add-users", middlewares.CheckAuth, controllers.AddParticipantAndOrga)
 }
 
-// CRUD Stand
 func StandRoutes(r *gin.Engine) {
 	r.POST("/create-stand", middlewares.CheckAuth, controllers.CreateStand)
 	r.POST("/stands/:id/interact", middlewares.CheckAuth, controllers.InteractWithStand)
@@ -43,9 +40,10 @@ func StandRoutes(r *gin.Engine) {
 	r.GET("/stands/:id", middlewares.CheckAuth, controllers.GetStandById)
 	r.PUT("/stands/:id/update", middlewares.CheckAuth, controllers.UpdateStand)
 	r.DELETE("/stands/:id/delete", middlewares.CheckAuth, controllers.DeleteStand)
+	r.POST("/stands/:id/products/products/:product_id/buy", middlewares.CheckAuth, controllers.BuyProduct)
+	r.POST("/stands/:id/users/:user_id/points", middlewares.CheckAuth, controllers.GivePoints)
 }
 
-// CRUD Product
 func ProductRoutes(r *gin.Engine) {
 	r.POST("/create-product", middlewares.CheckAuth, controllers.CreateProduct)
 	r.GET("/products", middlewares.CheckAuth, controllers.GetProducts)

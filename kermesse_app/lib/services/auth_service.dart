@@ -81,8 +81,8 @@ class AuthService extends ChangeNotifier{
         );
         if(response.statusCode == 200){
           final responseData = jsonDecode(response.body);
-          User user = User.fromJson(responseData);
-          return user;
+          _currentUser = User.fromJson(responseData);
+          return _currentUser;
         }else{
           print("Erreur de requête: ${response.statusCode}");
           return null;
@@ -94,6 +94,11 @@ class AuthService extends ChangeNotifier{
     }catch(e){
       rethrow;
     }
+  }
+
+  //On récupère le role du user
+  int? getUserRole(){
+    return _currentUser?.role;
   }
 
   //TODO logout

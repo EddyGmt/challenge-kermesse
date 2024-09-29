@@ -8,6 +8,8 @@ definitions:
         type: string
       id:
         type: integer
+      nb_jetons:
+        type: integer
       stand_name:
         type: string
       user_id:
@@ -151,6 +153,8 @@ definitions:
         type: string
       picture:
         type: string
+      pts_attribues:
+        type: integer
       role:
         description: 1 = ADMIN / 2 = ORGANISATEUR / 3 = TENEUR DE STAND / 4 = PARENT
           / 5 ELEVE
@@ -185,6 +189,11 @@ definitions:
       nb_jetons:
         type: integer
     type: object
+  requests.GivePointsRequest:
+    properties:
+      points:
+        type: integer
+    type: object
   requests.KermeseRequest:
     properties:
       name:
@@ -214,6 +223,11 @@ definitions:
     - price
     - quantity
     - type
+    type: object
+  requests.QuantityProductRequest:
+    properties:
+      quantity:
+        type: integer
     type: object
   requests.SignupRequest:
     properties:
@@ -1528,6 +1542,100 @@ paths:
       security:
       - Bearer: []
       summary: Met à jour un stand par ID
+      tags:
+      - Stand
+  /stands/{stand_id}/products/{product_id}/buy:
+    post:
+      consumes:
+      - application/json
+      description: Permet à un utilisateur d'acheter un produit sur un stand avec
+        ses jetons
+      parameters:
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: ID du stand
+        in: path
+        name: stand_id
+        required: true
+        type: integer
+      - description: ID du produit
+        in: path
+        name: product_id
+        required: true
+        type: integer
+      - description: Quantité de produit à acheter
+        in: body
+        name: quantity
+        required: true
+        schema:
+          $ref: '#/definitions/requests.QuantityProductRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/gin.H'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gin.H'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: Achat d'un produit sur un stand
+      tags:
+      - Stand
+  /stands/{stand_id}/users/{user_id}/points:
+    post:
+      consumes:
+      - application/json
+      description: Un stand peut attribuer des points à un utilisateur en fonction
+        du type de stand
+      parameters:
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: ID du stand
+        in: path
+        name: stand_id
+        required: true
+        type: integer
+      - description: ID de l'utilisateur
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      - description: Nombre de points à attribuer
+        in: body
+        name: points
+        required: true
+        schema:
+          $ref: '#/definitions/requests.GivePointsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/gin.H'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gin.H'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: Attribue des points à un utilisateur depuis un stand
       tags:
       - Stand
   /students:

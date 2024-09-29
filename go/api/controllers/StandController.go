@@ -216,19 +216,20 @@ func InteractWithStand(c *gin.Context) {
 	}
 
 	stand.Conso = currentUser.Jetons - stand.JetonsRequis
-	if err := initializers.DB.Save(&stand.Conso).Error; err != nil {
+	if err := initializers.DB.Save(&stand).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	currentUser.Jetons -= stand.JetonsRequis
-	if err := initializers.DB.Save(&currentUser.Jetons).Error; err != nil {
+	if err := initializers.DB.Save(&currentUser).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	var historique = models.History{
 		Date:      time.Now(),
+		NbJetons:  stand.JetonsRequis,
 		StandName: stand.Name,
 		UserID:    currentUser.ID,
 	}
@@ -242,4 +243,147 @@ func InteractWithStand(c *gin.Context) {
 		"stand":       stand.Conso,
 		"jetons user": currentUser.Jetons,
 	})
+}
+
+// @Summary Achat d'un produit sur un stand
+// @Description Permet à un utilisateur d'acheter un produit sur un stand avec ses jetons
+// @Tags Stand
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
+// @Param stand_id path uint true "ID du stand"
+// @Param product_id path uint true "ID du produit"
+// @Param quantity body requests.QuantityProductRequest true  "Quantité de produit à acheter"
+// @Success 200 {object} gin.H "Success"
+// @Failure 400 {object} gin.H "Bad Request"
+// @Failure 401 {object} gin.H "Unauthorized"
+// @Router /stands/{stand_id}/products/{product_id}/buy [post]
+func BuyProduct(c *gin.Context) {
+	currentUser, exists := c.Get("currentUser")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+	user := currentUser.(models.User)
+
+	standID := c.Param("stand_id")
+	productID := c.Param("product_id")
+
+	var stand models.Stand
+	var product models.Product
+	var quantity requests.QuantityProductRequest
+
+	if err := c.BindJSON(&quantity); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
+		return
+	}
+
+	if err := initializers.DB.Preload("Stock").First(&stand, standID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "stand not found"})
+		return
+	}
+	if err := initializers.DB.First(&product, productID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "product not found"})
+		return
+	}
+
+	if product.Nb_Products < uint64(quantity.Quantity) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "insufficient stock"})
+		return
+	}
+
+	totalJetons := product.JetonsRequis * quantity.Quantity
+
+	if user.Jetons < totalJetons {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "not enough tokens"})
+		return
+	}
+
+	user.Jetons -= totalJetons
+	stand.Conso += totalJetons
+	product.Nb_Products -= uint64(quantity.Quantity)
+
+	if err := initializers.DB.Save(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	if err := initializers.DB.Save(&stand).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	if err := initializers.DB.Save(&product).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Historiser la transaction
+	historique := models.History{
+		UserID:    user.ID,
+		NbJetons:  totalJetons,
+		StandName: stand.Name,
+		Date:      time.Now(),
+	}
+	if err := initializers.DB.Create(&historique).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "purchase successful"})
+}
+
+// @Summary Attribue des points à un utilisateur depuis un stand
+// @Description Un stand peut attribuer des points à un utilisateur en fonction du type de stand
+// @Tags Stand
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
+// @Param stand_id path uint true "ID du stand"
+// @Param user_id path uint true "ID de l'utilisateur"
+// @Param points body requests.GivePointsRequest true "Nombre de points à attribuer"
+// @Success 200 {object} gin.H "Success"
+// @Failure 400 {object} gin.H "Bad Request"
+// @Failure 401 {object} gin.H "Unauthorized"
+// @Router /stands/{stand_id}/users/{user_id}/points [post]
+func GivePoints(c *gin.Context) {
+	currentUser, exists := c.Get("currentUser")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+	standOwner := currentUser.(models.User)
+
+	// Récupérer les paramètres du chemin
+	standID := c.Param("stand_id")
+	userID := c.Param("user_id")
+
+	// Vérifier que l'utilisateur connecté est bien le propriétaire du stand
+	var stand models.Stand
+	if err := initializers.DB.First(&stand, standID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "stand not found"})
+		return
+	}
+	if stand.UserID != standOwner.ID {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "You are not the owner of this stand"})
+		return
+	}
+
+	var body requests.GivePointsRequest
+	if err := c.BindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
+		return
+	}
+
+	var user models.User
+	if err := initializers.DB.First(&user, userID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
+		return
+	}
+
+	user.PtsAttribues += body.Points
+	if err := initializers.DB.Save(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "points successfully given", "points_given": body.Points})
 }

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "799204118407",
+    "project_id": "kermesse-esgi",
+    "storage_bucket": "kermesse-esgi.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:799204118407:android:cbdb5181e672bd40c70d22",
+        "android_client_info": {
+          "package_name": "com.example.kermesse_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDiGR8rfGsTSv1TOWb6Oqzz1FoLTD6xc3Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
