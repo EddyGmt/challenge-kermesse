@@ -27,11 +27,11 @@ class Stand {
   int id;
   String name;
   String type;
-  List<Product> stock;
+  List<Product>? stock;
   int pts_donnees;
   int conso;
   int jetonsRequis;
-  List<Kermesse> kermesses;
+  List<Kermesse>? kermesses;
   int userID;
 
   /// A necessary factory constructor for creating a new User instance

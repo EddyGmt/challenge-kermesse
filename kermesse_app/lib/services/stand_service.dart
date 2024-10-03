@@ -9,7 +9,7 @@ import 'package:kermesse_app/models/stand.dart';
 import '../config/app_config.dart';
 
 
-class KermesseService extends ChangeNotifier{
+class StandService extends ChangeNotifier{
   final FlutterSecureStorage _storage = FlutterSecureStorage();
   final apiAuthority = AppConfig.getApiAuthority();
   final isSecure = AppConfig.isSecure();

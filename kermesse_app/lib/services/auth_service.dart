@@ -11,7 +11,7 @@ class AuthService extends ChangeNotifier{
   final FlutterSecureStorage _storage = FlutterSecureStorage();
   final apiAuthority = AppConfig.getApiAuthority();
   final isSecure = AppConfig.isSecure();
-  User? _currentUser;
+  late User _currentUser;
 
   //Méthode de signup
   Future<User?> signup(Signuprequest newUser) async{
@@ -65,7 +65,7 @@ class AuthService extends ChangeNotifier{
   }
 
   //Profile
-  Future<User?> profile()async{
+  Future<User> profile()async{
     try{
       final url = isSecure
           ? Uri.https(apiAuthority, '/profile')
@@ -81,15 +81,18 @@ class AuthService extends ChangeNotifier{
         );
         if(response.statusCode == 200){
           final responseData = jsonDecode(response.body);
-          _currentUser = User.fromJson(responseData);
+          _currentUser = User.fromJson(responseData['user']);
+          print(_currentUser);
           return _currentUser;
         }else{
-          print("Erreur de requête: ${response.statusCode}");
-          return null;
+          throw Exception('Erreur de requête: ${response.statusCode}');
+         // print("Erreur de requête: ${response.statusCode}");
+          //return null;
         }
       }else{
-        print("Token non disponible");
-        return null;
+        throw Exception('Token non disponible');
+        //print("Token non disponible");
+        //return null;
       }
     }catch(e){
       rethrow;
@@ -98,9 +101,35 @@ class AuthService extends ChangeNotifier{
 
   //On récupère le role du user
   int? getUserRole(){
-    return _currentUser?.role;
+    return _currentUser.role;
   }
 
   //TODO logout
   //TODO update profile avec le model request en params
+  Future<bool> updateProfile(User user) async {
+    try {
+      final url = isSecure
+          ? Uri.https(apiAuthority, '/profile/update')
+          : Uri.http(apiAuthority, '/profile/update');
+      String? token = await _storage.read(key: 'auth_token');
+      if (token != null) {
+        final response = await http.put(
+          url,
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer $token"
+          },
+          body: jsonEncode(user.toJson()),
+        );
+        return response.statusCode == 200;
+      } else {
+        print("Token non disponible");
+        return false;
+      }
+    } catch (e) {
+      print("Erreur lors de la mise à jour du profil : $e");
+      return false;
+    }
+  }
+
 }

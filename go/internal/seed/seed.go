@@ -8,12 +8,14 @@ import (
 )
 
 func SeedData(DB *gorm.DB) {
-
 	// Vérifier si les données existent déjà
 	var count int64
-	DB.Model(&models.Jetons{}).Count(&count)
+	if err := DB.Model(&models.Jetons{}).Count(&count).Error; err != nil {
+		log.Fatalf("Erreur lors du comptage des jetons : %v", err)
+		return
+	}
 	if count > 0 {
-		log.Println("Les données sont déja insérer dans la base de données")
+		log.Println("Les données sont déjà insérées dans la base de données")
 		return
 	}
 
@@ -30,7 +32,6 @@ func SeedData(DB *gorm.DB) {
 			NbJetons: 65,
 			Price:    25,
 		},
-
 		{
 			NbJetons: 80,
 			Price:    37,
@@ -47,10 +48,9 @@ func SeedData(DB *gorm.DB) {
 
 	// Enregistrer les instances dans la base de données
 	for _, jeton := range jetons {
-		if err := DB.Create(&jetons).Error; err != nil {
-			log.Fatalf("could not seed user %v: %v", jeton, err)
+		if err := DB.Create(&jeton).Error; err != nil { // Corrigé ici
+			log.Fatalf("Erreur lors de l'insertion du jeton %v : %v", jeton, err)
 		}
 	}
 	fmt.Println("Seeding completed.")
-
 }

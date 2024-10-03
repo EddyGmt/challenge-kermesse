@@ -14,6 +14,7 @@ class Kermesse {
   Kermesse(
       this.id,
       this.name,
+      this.picture,
       this.stands,
       this.organisateurs,
       this.participants,
@@ -22,9 +23,10 @@ class Kermesse {
 
   int id;
   String name;
-  List<Stand> stands;
-  List<User> organisateurs;
-  List<User> participants;
+  String picture;
+  List<Stand>? stands;
+  List<User>? organisateurs;
+  List<User>? participants;
   int userID;
 
   /// A necessary factory constructor for creating a new User instance

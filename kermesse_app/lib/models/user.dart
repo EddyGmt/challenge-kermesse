@@ -36,12 +36,12 @@ class User {
   String picture;
   int role;
   int jetons;
-  List<User> parents;
-  List<User> enfants;
-  List<Kermesse> kermesses;
-  List<Stand> stands ;
-  List<Transaction> transactions;
-  List<History> historique;
+  List<User>? parents;
+  List<User>? enfants;
+  List<Kermesse>? kermesses;
+  List<Stand>? stands ;
+  List<Transaction>? transactions;
+  List<History>? historique;
 
   /// A necessary factory constructor for creating a new User instance
   /// from a map. Pass the map to the generated `_$UserFromJson()` constructor.

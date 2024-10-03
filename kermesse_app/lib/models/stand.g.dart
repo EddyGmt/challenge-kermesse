@@ -10,15 +10,11 @@ Stand _$StandFromJson(Map<String, dynamic> json) => Stand(
       (json['id'] as num).toInt(),
       json['name'] as String,
       json['type'] as String,
-      (json['stock'] as List<dynamic>)
-          .map((e) => Product.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      (json['pts_donnees'] as num).toInt(),
-      (json['conso'] as num).toInt(),
-      (json['jetons_requis'] as num).toInt(),
-      (json['kermesses'] as List<dynamic>)
-          .map((e) => Kermesse.fromJson(e as Map<String, dynamic>))
-          .toList(),
+      (json['stock'] as List<dynamic>?)?.map((e) => Product.fromJson(e)).toList() ?? [],
+      json['pts_donnees'] as int? ?? 0,
+      json['conso'] as int? ?? 0,
+      json['jetonsRequis'] as int? ?? 0,
+      (json['kermesses'] as List<dynamic>?)?.map((e) => Kermesse.fromJson(e)).toList() ?? [],
       (json['user_id'] as num).toInt(),
     );
 

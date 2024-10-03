@@ -8,7 +8,7 @@ import '../models/kermesse.dart';
 import 'package:http/http.dart' as http;
 
 
-class KermesseServicec extends ChangeNotifier{
+class KermesseService extends ChangeNotifier{
   final FlutterSecureStorage _storage = FlutterSecureStorage();
   final apiAuthority = AppConfig.getApiAuthority();
   final isSecure = AppConfig.isSecure();
@@ -64,7 +64,7 @@ class KermesseServicec extends ChangeNotifier{
         );
 
         if(response.statusCode == 200){
-          var kermesseJson = jsonDecode(response.body) as List;
+          var kermesseJson = jsonDecode(response.body)['kermesses'] as List;
           List<Kermesse> kermesses = kermesseJson.map(
               (element){
                 return Kermesse.fromJson(element);

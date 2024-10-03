@@ -51,12 +51,18 @@ func CreateJetons(c *gin.Context) {
 // @Failure 500 {object} gin.H "Erreur serveur interne"
 // @Router /jetons [get]
 func GetJetons(c *gin.Context) {
-	var jetons []models.Jetons
-	if err := initializers.DB.Find(&jetons).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	_, exists := c.Get("currentUser")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"data": jetons})
+
+	var jetons []models.Jetons
+	if err := initializers.DB.Find(&jetons).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, jetons)
 }
 
 // @Summary Met à jour un jeton par ID

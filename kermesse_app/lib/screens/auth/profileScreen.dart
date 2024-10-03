@@ -5,35 +5,53 @@ import 'package:provider/provider.dart';
 
 import '../../models/user.dart';
 
-class Profilescreen extends StatefulWidget{
+class ProfileScreen extends StatefulWidget {
   static const routeName = "/profile";
-  const Profilescreen({super.key});
 
   @override
-  _ProfileScreenState createState()=> _ProfileScreenState();
+  _ProfileScreenState createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<Profilescreen>{
-  late Future<User?> _profile;
+class _ProfileScreenState extends State<ProfileScreen> {
+  late Future<User> _fetchProfile;
 
   @override
-  void initState() {
-    super.initState();
-    _profile = Provider.of<AuthService>(context, listen: false).profile();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Utiliser didChangeDependencies pour accéder au Provider
+    _fetchProfile = Provider.of<AuthService>(context).profile();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Profile'),
-      ),
-     /* body: FutureBuilder<User>(
-        builder: (context, snapshot){
-
+      appBar: AppBar(title: Text('Profil Utilisateur')),
+      body: FutureBuilder<User>(
+        future: _fetchProfile,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Erreur: ${snapshot.error}'));
+          } else if (snapshot.hasData) {
+            User profileData = snapshot.data!;
+            return Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  // Ajoute l'image du profil ici
+                  CircleAvatar(
+                    radius: 50,
+                  ),
+                  Text('Bonjour, ${profileData.firstname} ${profileData.lastname}'),
+                ],
+              ),
+            );
+          } else {
+            return Center(child: Text('Aucune donnée utilisateur disponible.'));
+          }
         },
-      )*/
+      ),
     );
   }
-
 }
