@@ -53,7 +53,7 @@ func ProductRoutes(r *gin.Engine) {
 
 func JetonsRoutes(r *gin.Engine) {
 	r.POST("/create-jeton", middlewares.CheckAuth, controllers.CreateJetons)
-	r.GET("/jetons", middlewares.CheckAuth, controllers.GetJetons)
+	r.GET("/jetons", controllers.GetJetons)
 	r.PUT("/jetons/:id/update", middlewares.CheckAuth, controllers.UpdateJeton)
 	r.DELETE("/jetons/:id/delete", middlewares.CheckAuth, controllers.DeleteJeton)
 }

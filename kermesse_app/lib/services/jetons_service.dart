@@ -60,7 +60,7 @@ class JetonsService extends ChangeNotifier {
           },
         );
         if (response.statusCode == 200) {
-          var jetonsJson = jsonDecode(response.body) as List;
+          var jetonsJson = jsonDecode(response.body)['jetons'] as List;
           List<Jetons> jetons = jetonsJson.map((element) {
             return Jetons.fromJson(element);
           }).toList();

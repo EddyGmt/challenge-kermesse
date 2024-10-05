@@ -100,14 +100,19 @@ func GetAllKermesses(c *gin.Context) {
 	}
 
 	if currentUser.Role >= 3 {
-		if err := initializers.DB.Preload("Organisateurs").Preload("Participants").Preload("Stands").
+		if err := initializers.DB.
 			Where("id IN (SELECT kermesse_id FROM kermesse_participants WHERE user_id = ?)", currentUser.ID).
 			Find(&kermesses).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
-		c.JSON(http.StatusOK, kermesses)
+
+		if len(kermesses) == 0 {
+			c.JSON(http.StatusOK, gin.H{"message": "Aucune kermesse trouvée pour cet utilisateur"})
+			return
+		}
 	}
+	c.JSON(http.StatusOK, gin.H{"kermesses": kermesses})
 }
 
 // @Summary Get a Kermesse by its ID
@@ -159,6 +164,7 @@ func GetKermesseById(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param Authorization header string true "Insert your access token" default(Bearer Add access token here)
+// @Param id path int true "Kermesse ID"
 // @Param kermesse body requests.AddStandRequest true "Données du groupe"
 // @Success 200 {object} gin.H "Stand ajouté"
 // @Failure 400 {object} gin.H "Bad request"
@@ -237,7 +243,8 @@ func AddStand(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param Authorization header string true "Insert your access token" default(Bearer Add access token here)
-// @Param kermesse body requests.AddStandRequest true "Données du groupe"
+// @Param id path int true "Kermesse ID"
+// @Param kermesse body requests.AddUserRequest true "Données du groupe"
 // @Success 200 {object} gin.H "User ajouté(s)"
 // @Failure 400 {object} gin.H "Bad request"
 // @Failure 401 {object} gin.H "Unauthorized"
@@ -319,6 +326,11 @@ func AddParticipantAndOrga(c *gin.Context) {
 		}
 
 		if err := initializers.DB.Model(&kermesse).Association("Participants").Append(&users); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error adding a participant to kermesse"})
+			return
+		}
+
+		if err := initializers.DB.Save(&kermesse).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error adding a participant to kermesse"})
 			return
 		}

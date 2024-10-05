@@ -4,6 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:kermesse_app/screens/auth/loginScreen.dart';
 import 'package:kermesse_app/screens/auth/profileScreen.dart';
 import 'package:kermesse_app/screens/home/homeScreen.dart';
+import 'package:kermesse_app/screens/jetons/jetons-screen.dart';
 import 'package:provider/provider.dart';
 import '../models/user.dart';
 import '../services/auth_service.dart';
@@ -51,22 +52,38 @@ class _AppDrawerState extends State<AppDrawer> {
                 );
               } else if (snapshot.hasData) {
                 User currentUser = snapshot.data!;
-                return DrawerHeader(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        Theme.of(context).canvasColor,
-                        Theme.of(context).canvasColor.withOpacity(0.5),
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
+                return GestureDetector(
+                  onTap: () {
+                    // Naviguer vers le profil lorsque l'utilisateur clique sur le header
+                    Navigator.pushNamed(context, ProfileScreen.routeName);
+                  },
+                  child: DrawerHeader(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Theme.of(context).canvasColor,
+                          Theme.of(context).canvasColor.withOpacity(0.5),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
                     ),
-                  ),
-                  child: Text(
-                    currentUser.firstname,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 21,
+                    child: Column(
+                      children: [
+                        CircleAvatar(
+                          radius: 40, // Ajuste la taille de l'avatar
+                          backgroundImage: NetworkImage(currentUser.picture),
+                        ),
+                        SizedBox(height: 10),
+                        Text(
+                          '${currentUser.firstname} ${currentUser.lastname}',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 );
@@ -86,10 +103,10 @@ class _AppDrawerState extends State<AppDrawer> {
             },
           ),
           ListTile(
-            leading: Icon(Icons.person),
-            title: Text('Profile'),
+            leading: const Icon(Icons.generating_tokens_rounded),
+            title: Text('Acheter des jetons'),
             onTap: () {
-              Navigator.pushNamed(context, ProfileScreen.routeName);
+              Navigator.pushNamed(context, JetonsScreen.routeName);
             },
           ),
           ListTile(

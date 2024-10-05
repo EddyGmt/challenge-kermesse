@@ -11,7 +11,7 @@ class PaymentService extends ChangeNotifier{
   final apiAuthority = AppConfig.getApiAuthority();
   final isSecure = AppConfig.isSecure();
 
-  Future<bool>payment(PaymentRequest paymentRequest)async{
+  Future<String>payment(PaymentRequest paymentRequest)async{
     try{
       final url = isSecure
           ? Uri.https(apiAuthority, '/payment')
@@ -27,14 +27,15 @@ class PaymentService extends ChangeNotifier{
             body: jsonEncode(paymentRequest)
         );
         if(response.statusCode == 200){
-          return true;
+          final jsonResponse = jsonDecode(response.body);
+          return jsonResponse['paymentIntent']['client_secret'];
         }else{
           print("Erreur de requête: ${response.statusCode}");
-          return false;
+          throw Exception('Erreur lors de la création du paiement');
         }
       }else{
-        print("Token non disponible");
-        return false;
+        //print("Token non disponible");
+        throw Exception('Token non disponible');
       }
     }catch(e){
       rethrow;

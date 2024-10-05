@@ -46,8 +46,6 @@ definitions:
         items:
           $ref: '#/definitions/models.Stand'
         type: array
-      user:
-        $ref: '#/definitions/models.User'
       user_id:
         description: 'Relation Many-to-One : L''utilisateur qui crée la kermesse'
         type: integer
@@ -93,8 +91,6 @@ definitions:
         type: array
       type:
         type: string
-      user:
-        $ref: '#/definitions/models.User'
       user_id:
         type: integer
     type: object
@@ -110,10 +106,6 @@ definitions:
         type: number
       type:
         type: string
-      user:
-        allOf:
-        - $ref: '#/definitions/models.User'
-        description: Association avec l'utilisateur
       user_id:
         description: Relations avec l'utilisateur
         type: integer
@@ -183,6 +175,15 @@ definitions:
         type: array
     required:
     - stand_ids
+    type: object
+  requests.AddUserRequest:
+    properties:
+      type:
+        type: string
+      user_ids:
+        items:
+          type: integer
+        type: array
     type: object
   requests.GiveCoinRequest:
     properties:
@@ -675,13 +676,6 @@ paths:
   /jetons:
     get:
       description: Récupère la liste de tous les jetons
-      parameters:
-      - default: Bearer Add access token here
-        description: Insert your access token
-        in: header
-        name: Authorization
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -695,8 +689,6 @@ paths:
           description: Erreur serveur interne
           schema:
             $ref: '#/definitions/gin.H'
-      security:
-      - Bearer: []
       summary: Récupère tous les jetons
       tags:
       - Jeton
@@ -863,6 +855,11 @@ paths:
         name: Authorization
         required: true
         type: string
+      - description: Kermesse ID
+        in: path
+        name: id
+        required: true
+        type: integer
       - description: Données du groupe
         in: body
         name: kermesse
@@ -913,12 +910,17 @@ paths:
         name: Authorization
         required: true
         type: string
+      - description: Kermesse ID
+        in: path
+        name: id
+        required: true
+        type: integer
       - description: Données du groupe
         in: body
         name: kermesse
         required: true
         schema:
-          $ref: '#/definitions/requests.AddStandRequest'
+          $ref: '#/definitions/requests.AddUserRequest'
       produces:
       - application/json
       responses:

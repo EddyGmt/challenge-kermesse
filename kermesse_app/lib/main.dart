@@ -1,9 +1,11 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:kermesse_app/screens/auth/loginScreen.dart';
 import 'package:kermesse_app/screens/auth/profileScreen.dart';
 import 'package:kermesse_app/screens/home/homeScreen.dart';
+import 'package:kermesse_app/screens/jetons/jetons-screen.dart';
 import 'package:kermesse_app/screens/kermesse_detail/kermesse_detail.dart';
 import 'package:kermesse_app/services/auth_service.dart';
 import 'package:kermesse_app/services/eleve_service.dart';
@@ -18,9 +20,12 @@ import 'package:kermesse_app/services/user_service.dart';
 import 'package:provider/provider.dart';
 
 Future main() async{
+  await dotenv.load(fileName: ".env");
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  await dotenv.load(fileName: ".env");
+  Stripe.publishableKey = dotenv.env['STRIPE_PUBLISHABLE_KEY']!;
+  await Stripe.instance.applySettings();
+
   runApp(
     MultiProvider(
       providers: [
@@ -50,6 +55,7 @@ class MyApp extends StatelessWidget{
         '/': (context) => LoginScreen(),
         Homescreen.routeName: (_)=> Homescreen(),
         ProfileScreen.routeName: (_)=> ProfileScreen(),
+        JetonsScreen.routeName: (_)=>JetonsScreen(),
       },
       onGenerateRoute: (settings){
         if(settings.name == KermesseDetailsScreen.routeName){

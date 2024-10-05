@@ -13,5 +13,4 @@ type Kermesse struct {
 
 	// Relation Many-to-One : L'utilisateur qui crée la kermesse
 	UserID uint `gorm:"not null" json:"user_id"`
-	User   User `gorm:"foreignKey:UserID" json:"user"`
 }

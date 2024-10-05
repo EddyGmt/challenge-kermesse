@@ -44,25 +44,23 @@ func CreateJetons(c *gin.Context) {
 // @Summary Récupère tous les jetons
 // @Description Récupère la liste de tous les jetons
 // @Tags Jeton
-// @Security Bearer
-// @Param Authorization header string true "Insert your access token" default(Bearer Add access token here)
 // @Produce json
 // @Success 200 {object} []models.Jetons
 // @Failure 500 {object} gin.H "Erreur serveur interne"
 // @Router /jetons [get]
 func GetJetons(c *gin.Context) {
-	_, exists := c.Get("currentUser")
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
-		return
-	}
+	/*	_, exists := c.Get("currentUser")
+		if !exists {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+			return
+		}*/
 
 	var jetons []models.Jetons
 	if err := initializers.DB.Find(&jetons).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, jetons)
+	c.JSON(http.StatusOK, gin.H{"jetons": jetons})
 }
 
 // @Summary Met à jour un jeton par ID

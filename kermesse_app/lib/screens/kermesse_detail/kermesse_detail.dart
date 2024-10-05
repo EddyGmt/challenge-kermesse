@@ -17,7 +17,7 @@ class KermesseDetailsScreen extends StatelessWidget{
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Détails de la Kermesse'),
+        title: const Text('Détails'),
       ),
       body: FutureBuilder<Kermesse?>(
         future: kermesseService.getKermessebyId(this.kermesseId),
@@ -37,6 +37,8 @@ class KermesseDetailsScreen extends StatelessWidget{
     );
   }
   Widget buildKermesseDetails(Kermesse kermesse){
-    return Container ();
+    return Container (
+
+    );
   }
 }

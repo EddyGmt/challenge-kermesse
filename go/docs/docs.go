@@ -646,11 +646,6 @@ const docTemplate = `{
         },
         "/jetons": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "description": "Récupère la liste de tous les jetons",
                 "produces": [
                     "application/json"
@@ -659,16 +654,6 @@ const docTemplate = `{
                     "Jeton"
                 ],
                 "summary": "Récupère tous les jetons",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "default": "Bearer Add access token here",
-                        "description": "Insert your access token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -949,6 +934,13 @@ const docTemplate = `{
                         "required": true
                     },
                     {
+                        "type": "integer",
+                        "description": "Kermesse ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
                         "description": "Données du groupe",
                         "name": "kermesse",
                         "in": "body",
@@ -1026,12 +1018,19 @@ const docTemplate = `{
                         "required": true
                     },
                     {
+                        "type": "integer",
+                        "description": "Kermesse ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
                         "description": "Données du groupe",
                         "name": "kermesse",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/requests.AddStandRequest"
+                            "$ref": "#/definitions/requests.AddUserRequest"
                         }
                     }
                 ],
@@ -2284,9 +2283,6 @@ const docTemplate = `{
                         "$ref": "#/definitions/models.Stand"
                     }
                 },
-                "user": {
-                    "$ref": "#/definitions/models.User"
-                },
                 "user_id": {
                     "description": "Relation Many-to-One : L'utilisateur qui crée la kermesse",
                     "type": "integer"
@@ -2354,9 +2350,6 @@ const docTemplate = `{
                 "type": {
                     "type": "string"
                 },
-                "user": {
-                    "$ref": "#/definitions/models.User"
-                },
                 "user_id": {
                     "type": "integer"
                 }
@@ -2379,14 +2372,6 @@ const docTemplate = `{
                 },
                 "type": {
                     "type": "string"
-                },
-                "user": {
-                    "description": "Association avec l'utilisateur",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.User"
-                        }
-                    ]
                 },
                 "user_id": {
                     "description": "Relations avec l'utilisateur",
@@ -2483,6 +2468,20 @@ const docTemplate = `{
             ],
             "properties": {
                 "stand_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
+        "requests.AddUserRequest": {
+            "type": "object",
+            "properties": {
+                "type": {
+                    "type": "string"
+                },
+                "user_ids": {
                     "type": "array",
                     "items": {
                         "type": "integer"

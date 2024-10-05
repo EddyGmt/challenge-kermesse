@@ -6,8 +6,9 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.4.2' // Mise à jour du plugin Android Gradle
+        classpath 'com.android.tools.build:gradle:8.1.4' // Mise à jour du plugin Android Gradle
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        //implementation 'com.stripe:stripe-android:20.48.6'
     }
 }
 
@@ -42,12 +43,11 @@ if (flutterVersionName == null) {
 
 android {
     namespace = "com.example.kermesse_app"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 34
     ndkVersion = flutter.ndkVersion
-
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     defaultConfig {
@@ -59,6 +59,7 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutterVersionCode.toInteger()
         versionName = flutterVersionName
+        buildConfigField "String", "STRIPE_PUBLISHABLE_KEY", "\"${System.getenv('STRIPE_PUBLISHABLE_KEY')}\""
     }
 
     buildTypes {
@@ -67,6 +68,10 @@ android {
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.debug
         }
+    }
+
+    buildFeatures {
+        buildConfig true
     }
 }
 

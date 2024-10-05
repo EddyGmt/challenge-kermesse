@@ -635,11 +635,6 @@
         },
         "/jetons": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "description": "Récupère la liste de tous les jetons",
                 "produces": [
                     "application/json"
@@ -648,16 +643,6 @@
                     "Jeton"
                 ],
                 "summary": "Récupère tous les jetons",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "default": "Bearer Add access token here",
-                        "description": "Insert your access token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -938,6 +923,13 @@
                         "required": true
                     },
                     {
+                        "type": "integer",
+                        "description": "Kermesse ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
                         "description": "Données du groupe",
                         "name": "kermesse",
                         "in": "body",
@@ -1015,12 +1007,19 @@
                         "required": true
                     },
                     {
+                        "type": "integer",
+                        "description": "Kermesse ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
                         "description": "Données du groupe",
                         "name": "kermesse",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/requests.AddStandRequest"
+                            "$ref": "#/definitions/requests.AddUserRequest"
                         }
                     }
                 ],
@@ -2273,9 +2272,6 @@
                         "$ref": "#/definitions/models.Stand"
                     }
                 },
-                "user": {
-                    "$ref": "#/definitions/models.User"
-                },
                 "user_id": {
                     "description": "Relation Many-to-One : L'utilisateur qui crée la kermesse",
                     "type": "integer"
@@ -2343,9 +2339,6 @@
                 "type": {
                     "type": "string"
                 },
-                "user": {
-                    "$ref": "#/definitions/models.User"
-                },
                 "user_id": {
                     "type": "integer"
                 }
@@ -2368,14 +2361,6 @@
                 },
                 "type": {
                     "type": "string"
-                },
-                "user": {
-                    "description": "Association avec l'utilisateur",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.User"
-                        }
-                    ]
                 },
                 "user_id": {
                     "description": "Relations avec l'utilisateur",
@@ -2472,6 +2457,20 @@
             ],
             "properties": {
                 "stand_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
+        "requests.AddUserRequest": {
+            "type": "object",
+            "properties": {
+                "type": {
+                    "type": "string"
+                },
+                "user_ids": {
                     "type": "array",
                     "items": {
                         "type": "integer"
