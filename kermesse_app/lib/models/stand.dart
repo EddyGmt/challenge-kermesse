@@ -16,6 +16,7 @@ class Stand {
       this.id,
       this.name,
       this.type,
+      this.description,
       this.stock,
       this.pts_donnees,
       this.conso,
@@ -27,6 +28,7 @@ class Stand {
   int id;
   String name;
   String type;
+  String description;
   List<Product>? stock;
   int pts_donnees;
   int conso;

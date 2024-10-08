@@ -28,7 +28,7 @@ class User {
       this.transactions,
       this.historique,);
 
-  int id;
+  int? id;
   String firstname;
   String lastname;
   String email;

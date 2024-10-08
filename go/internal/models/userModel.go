@@ -8,7 +8,7 @@ type User struct {
 	Password     string `gorm:"size:100; not null" json:"password"`
 	Picture      string `gorm:"size:100;" json:"picture"`
 	Role         uint   `gorm:"size: 64; not null" json:"role"` /* 1 = ADMIN / 2 = ORGANISATEUR / 3 = TENEUR DE STAND / 4 = PARENT / 5 ELEVE  */
-	Jetons       uint   `gorm:"size: 64; default:0; not null" json:"jetons"`
+	Jetons       int    `gorm:"size: 64; default:0; not null" json:"jetons"`
 	PtsAttribues uint   `gorm:"size: 64; default: 0" json:"pts_attribues"`
 
 	// Relations Many-to-Many pour Parents/Enfants
@@ -20,4 +20,5 @@ type User struct {
 	Stands       []Stand       `gorm:"foreignKey:UserID" json:"stands"`
 	Transactions []Transaction `gorm:"foreignKey:UserID" json:"transactions"`
 	Historique   []History     `gorm:"foreignKey:UserID" json:"historique"`
+	Tickets      []Ticket      `gorm:"foreignKey:UserID" json:"tickets"`
 }

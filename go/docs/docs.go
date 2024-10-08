@@ -1221,6 +1221,82 @@ const docTemplate = `{
                 }
             }
         },
+        "/kermesses/{kermesseId}/tombola/{tombolaId}/draw-winner": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Permet de tirer au sort les gagnants pour une tombola spécifique d'une kermesse",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tombola"
+                ],
+                "summary": "Tire un gagnant pour chaque lot d'une tombola",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Kermesse ID",
+                        "name": "kermesseId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Tombola ID",
+                        "name": "tombolaId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "default": "Bearer Add access token here",
+                        "description": "Insert your access token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Liste des gagnants par lot",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "404": {
+                        "description": "Tombola non trouvée ou pas de tickets",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    }
+                }
+            }
+        },
         "/login": {
             "post": {
                 "description": "login to the app",
@@ -2283,6 +2359,9 @@ const docTemplate = `{
                         "$ref": "#/definitions/models.Stand"
                     }
                 },
+                "user": {
+                    "$ref": "#/definitions/models.User"
+                },
                 "user_id": {
                     "description": "Relation Many-to-One : L'utilisateur qui crée la kermesse",
                     "type": "integer"
@@ -2322,6 +2401,9 @@ const docTemplate = `{
                 "conso": {
                     "type": "integer"
                 },
+                "description": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -2350,6 +2432,23 @@ const docTemplate = `{
                 "type": {
                     "type": "string"
                 },
+                "user": {
+                    "$ref": "#/definitions/models.User"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.Ticket": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "tombola_id": {
+                    "type": "integer"
+                },
                 "user_id": {
                     "type": "integer"
                 }
@@ -2372,6 +2471,14 @@ const docTemplate = `{
                 },
                 "type": {
                     "type": "string"
+                },
+                "user": {
+                    "description": "Association avec l'utilisateur",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    ]
                 },
                 "user_id": {
                     "description": "Relations avec l'utilisateur",
@@ -2440,6 +2547,12 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/models.Stand"
+                    }
+                },
+                "tickets": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Ticket"
                     }
                 },
                 "transactions": {
@@ -2545,6 +2658,9 @@ const docTemplate = `{
                 "quantity": {
                     "type": "integer"
                 },
+                "tombola_id": {
+                    "type": "integer"
+                },
                 "type": {
                     "type": "string"
                 }
@@ -2595,6 +2711,9 @@ const docTemplate = `{
                 "type"
             ],
             "properties": {
+                "description": {
+                    "type": "string"
+                },
                 "jetons_requis": {
                     "type": "integer"
                 },

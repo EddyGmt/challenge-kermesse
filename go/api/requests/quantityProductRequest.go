@@ -1,5 +1,5 @@
 package requests
 
 type QuantityProductRequest struct {
-	Quantity uint `json:"quantity"`
+	Quantity int `json:"quantity"`
 }

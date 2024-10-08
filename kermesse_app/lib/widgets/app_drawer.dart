@@ -35,80 +35,90 @@ class _AppDrawerState extends State<AppDrawer> {
     AuthService authService = Provider.of<AuthService>(context, listen: false);
 
     return Drawer(
-      child: ListView(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween, // Pour espacer les éléments
         children: <Widget>[
-          FutureBuilder<User>(
-            future: _fetchProfile, // Utilise le Future que nous avons défini
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const DrawerHeader(
-                  decoration: BoxDecoration(color: Colors.blue),
-                  child: Center(child: CircularProgressIndicator()),
-                );
-              } else if (snapshot.hasError) {
-                return DrawerHeader(
-                  decoration: BoxDecoration(color: Colors.red),
-                  child: Text('Erreur: ${snapshot.error}'),
-                );
-              } else if (snapshot.hasData) {
-                User currentUser = snapshot.data!;
-                return GestureDetector(
-                  onTap: () {
-                    // Naviguer vers le profil lorsque l'utilisateur clique sur le header
-                    Navigator.pushNamed(context, ProfileScreen.routeName);
-                  },
-                  child: DrawerHeader(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Theme.of(context).canvasColor,
-                          Theme.of(context).canvasColor.withOpacity(0.5),
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                    ),
-                    child: Column(
-                      children: [
-                        CircleAvatar(
-                          radius: 40, // Ajuste la taille de l'avatar
-                          backgroundImage: NetworkImage(currentUser.picture),
-                        ),
-                        SizedBox(height: 10),
-                        Text(
-                          '${currentUser.firstname} ${currentUser.lastname}',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+          // Partie supérieure avec les options du menu
+          Expanded(
+            child: ListView(
+              children: <Widget>[
+                FutureBuilder<User>(
+                  future: _fetchProfile,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const DrawerHeader(
+                        decoration: BoxDecoration(color: Colors.blue),
+                        child: Center(child: CircularProgressIndicator()),
+                      );
+                    } else if (snapshot.hasError) {
+                      print("Erreur : ${snapshot}");
+                      return DrawerHeader(
+                        decoration: BoxDecoration(color: Colors.red),
+                        child: Text('Erreur: ${snapshot.error}'),
+                      );
+                    } else if (snapshot.hasData) {
+                      User currentUser = snapshot.data!;
+                      return GestureDetector(
+                        onTap: () {
+                          // Naviguer vers le profil lorsque l'utilisateur clique sur le header
+                          Navigator.pushNamed(context, ProfileScreen.routeName);
+                        },
+                        child: DrawerHeader(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                Theme.of(context).canvasColor,
+                                Theme.of(context).canvasColor.withOpacity(0.5),
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              } else {
-                return const DrawerHeader(
-                  decoration: BoxDecoration(color: Colors.grey),
-                  child: Text('Utilisateur non trouvé'),
-                );
-              }
-            },
+                          child: Column(
+                            children: [
+                              CircleAvatar(
+                                radius: 40,
+                                backgroundImage: NetworkImage(currentUser.picture),
+                              ),
+                              SizedBox(height: 10),
+                              Text(
+                                '${currentUser.firstname} ${currentUser.lastname}',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      );
+                    } else {
+                      return const DrawerHeader(
+                        decoration: BoxDecoration(color: Colors.grey),
+                        child: Text('Utilisateur non trouvé'),
+                      );
+                    }
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.home),
+                  title: Text('Home'),
+                  onTap: () {
+                    Navigator.pushNamed(context, Homescreen.routeName);
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.generating_tokens_rounded),
+                  title: Text('Acheter des jetons'),
+                  onTap: () {
+                    Navigator.pushNamed(context, JetonsScreen.routeName);
+                  },
+                ),
+              ],
+            ),
           ),
-          ListTile(
-            leading: const Icon(Icons.home),
-            title: Text('Home'),
-            onTap: () {
-              Navigator.pushNamed(context, Homescreen.routeName);
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.generating_tokens_rounded),
-            title: Text('Acheter des jetons'),
-            onTap: () {
-              Navigator.pushNamed(context, JetonsScreen.routeName);
-            },
-          ),
+          // Partie inférieure avec le bouton de déconnexion
           ListTile(
             leading: Icon(Icons.logout),
             title: Text('Déconnexion'),
@@ -128,3 +138,4 @@ class _AppDrawerState extends State<AppDrawer> {
     );
   }
 }
+

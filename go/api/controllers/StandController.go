@@ -37,6 +37,7 @@ func CreateStand(c *gin.Context) {
 	stand := models.Stand{
 		Name:         standData.Name,
 		Type:         standData.Type,
+		Description:  standData.Description,
 		JetonsRequis: standData.JetonsRequis,
 		UserID:       currentUser.ID,
 	}
@@ -215,7 +216,7 @@ func InteractWithStand(c *gin.Context) {
 		return
 	}
 
-	stand.Conso = currentUser.Jetons - stand.JetonsRequis
+	stand.Conso += stand.JetonsRequis
 	if err := initializers.DB.Save(&stand).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -287,7 +288,7 @@ func BuyProduct(c *gin.Context) {
 		return
 	}
 
-	if product.Nb_Products < uint64(quantity.Quantity) {
+	if product.Nb_Products < quantity.Quantity {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "insufficient stock"})
 		return
 	}
@@ -301,7 +302,7 @@ func BuyProduct(c *gin.Context) {
 
 	user.Jetons -= totalJetons
 	stand.Conso += totalJetons
-	product.Nb_Products -= uint64(quantity.Quantity)
+	product.Nb_Products -= quantity.Quantity
 
 	if err := initializers.DB.Save(&user).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

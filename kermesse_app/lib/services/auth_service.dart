@@ -12,6 +12,8 @@ class AuthService extends ChangeNotifier{
   final apiAuthority = AppConfig.getApiAuthority();
   final isSecure = AppConfig.isSecure();
   late User _currentUser;
+  static User? _user;
+  User? get user => _user;
 
   //Méthode de signup
   Future<User?> signup(Signuprequest newUser) async{
@@ -54,6 +56,7 @@ class AuthService extends ChangeNotifier{
         final responseData = jsonDecode(response.body.toString());
         final token = responseData["token"];
         await _storage.write(key: 'auth_token', value: token);
+
         return true;
       }else{
         print("Erreur lors de la connexion: ${response.statusCode}");

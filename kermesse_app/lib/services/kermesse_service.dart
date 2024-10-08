@@ -84,7 +84,7 @@ class KermesseService extends ChangeNotifier{
     }
   }
 
-  Future<Kermesse?> getKermessebyId(int id)async{
+  Future<Kermesse> getKermessebyId(int id)async{
     try{
       final url = isSecure
           ? Uri.https(apiAuthority, '/kermesses/$id')
@@ -99,16 +99,18 @@ class KermesseService extends ChangeNotifier{
             }
         );
         if(response.statusCode == 200){
-          var responseData = jsonDecode(response.body);
+          var responseData = jsonDecode(response.body)['kermesse'];
           Kermesse kermesse = Kermesse.fromJson(responseData);
           return kermesse;
         }else{
           print("Erreur sur la récupération des jetons: ${response.statusCode}");
-          return null;
+          throw Exception('Erreur de requête: ${response.statusCode}');
+          //return null;
         }
       }else{
         print("Erreur: token invalide");
-        return null;
+        throw Exception('Token non disponible');
+       //return null;
       }
     }catch(e){
       rethrow;

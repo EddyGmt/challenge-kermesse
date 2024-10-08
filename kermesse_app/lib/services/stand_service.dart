@@ -85,7 +85,7 @@ class StandService extends ChangeNotifier{
     }
   }
 
-  Future<Stand?> getKermessebyId(int id)async{
+  Future<Stand> getStandById(int id)async{
     try{
       final url = isSecure
           ? Uri.https(apiAuthority, '/stands/$id')
@@ -100,16 +100,18 @@ class StandService extends ChangeNotifier{
             }
         );
         if(response.statusCode == 200){
-          var responseData = jsonDecode(response.body);
+          var responseData = jsonDecode(response.body)['stand'];
           Stand stand = Stand.fromJson(responseData);
           return stand;
         }else{
-          print("Erreur sur la récupération des jetons: ${response.statusCode}");
-          return null;
+          print("Erreur sur la récupération du stand: ${response.statusCode}");
+          throw Exception('Erreur de requête: ${response.statusCode}');
+          //return null;
         }
       }else{
         print("Erreur: token invalide");
-        return null;
+        throw Exception('Token non valide');
+        //return null;
       }
     }catch(e){
       rethrow;
@@ -145,5 +147,34 @@ class StandService extends ChangeNotifier{
       rethrow;
     }
   }
-  //TODO interact with stands
+
+  Future<bool> interactWithStand(int standId)async{
+    try{
+      final url = isSecure
+          ? Uri.https(apiAuthority, '/stands/$standId/interact')
+          : Uri.http(apiAuthority, '/stands/$standId/interact');
+      final token = await _storage.read(key: 'auth_token');
+      if(token != null){
+        final response = await http.post(
+            url,
+            headers: {
+              "Content-Type":"application/json",
+              "Authorization": "Bearer $token"
+            },
+        );
+
+        if(response.statusCode == 200){
+          return true;
+        }else{
+          print("Erreur de requête: ${response.statusCode}");
+          return false;
+        }
+      }else{
+        print('Token invalide');
+        return false;
+      }
+    }catch(e){
+      rethrow;
+    }
+  }
 }

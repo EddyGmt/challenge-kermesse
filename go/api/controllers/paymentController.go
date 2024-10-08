@@ -70,17 +70,38 @@ func Payment(c *gin.Context) {
 		transaction = models.Transaction{
 			DateTransaction: time.Now(),
 			Price:           float32(paymentReq.Price),
-			Quantity:        paymentReq.Quantity,
+			Quantity:        uint(paymentReq.Quantity),
 			UserID:          currentUser.ID,
 		}
 	} else if paymentReq.Type == "tombola" {
-		// Créer une transaction pour le ticket de tombola
+		// Vérifier que TombolaID est présent
+		if paymentReq.TombolaID == 0 {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "TombolaID manquant pour l'achat de tickets de tombola"})
+			return
+		}
+
+		// Créer une transaction pour les tickets de tombola
 		transaction = models.Transaction{
 			DateTransaction: time.Now(),
 			Price:           float32(paymentReq.Price),
-			Quantity:        paymentReq.Quantity,
+			Quantity:        uint(paymentReq.Quantity),
 			UserID:          currentUser.ID,
 		}
+
+		// Création des tickets pour la tombola
+		for i := 0; i < paymentReq.Quantity; i++ {
+			ticket := models.Ticket{
+				TombolaID: paymentReq.TombolaID,
+				UserID:    currentUser.ID,
+			}
+
+			// Enregistrer chaque ticket dans la base de données
+			if err := initializers.DB.Create(&ticket).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
+		}
+
 	} else {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Type de paiement invalide"})
 		return

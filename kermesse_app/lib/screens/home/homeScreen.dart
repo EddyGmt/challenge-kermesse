@@ -49,22 +49,70 @@ class Homescreen extends StatelessWidget {
         final kermesse = kermesses[index];
         return GestureDetector(
           onTap: () {
-            Navigator.of(context).pushNamed(KermesseDetailsScreen.routeName,
-                arguments: kermesse.id);
+            Navigator.of(context).pushNamed(
+              KermesseDetailsScreen.routeName,
+              arguments: kermesse.id,
+            );
           },
-          child: Container(
-            margin: EdgeInsets.all(16.0),
-            padding: EdgeInsets.all(9.0),
-            height: 100,
-            child: Row(
-              children: [
-                Expanded(flex: 1, child: Text((kermesse.name).toString())),
-                //xpanded(flex:1, child: Text((jeton.price).toString()))
-              ],
+          child: Card(
+            margin: const EdgeInsets.all(16.0),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15.0),
+            ),
+            elevation: 5,
+            child: Container(
+              padding: const EdgeInsets.all(16.0),
+              height: 120,
+              child: Row(
+                children: [
+                  // Image de la kermesse
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8.0),
+                    child: Image.network(
+                      kermesse.picture,
+                      height: 100,
+                      width: 100,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return const Icon(Icons.broken_image, size: 100);
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 16), // Espacement entre l'image et le texte
+                  // Nom de la kermesse et nombre de stands
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // Nom de la kermesse
+                        Text(
+                          kermesse.name,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8), // Espacement
+                        // Nombre de stands (facultatif)
+                        if (kermesse.stands != null)
+                          Text(
+                            '${kermesse.stands!.length} stands',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         );
       },
     );
   }
+
 }

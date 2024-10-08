@@ -1,5 +1,5 @@
 package requests
 
 type GiveCoinRequest struct {
-	NbJetons uint `json:"nb_jetons"`
+	NbJetons int `json:"nb_jetons"`
 }

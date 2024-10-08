@@ -10,5 +10,6 @@ type Transaction struct {
 	Quantity        uint      `gorm:"not null" json:"Quantity"`
 
 	// Relations avec l'utilisateur
-	UserID uint `gorm:"not null" json:"user_id"` // Clé étrangère
+	UserID uint `gorm:"not null" json:"user_id"`       // Clé étrangère
+	User   User `gorm:"foreignKey:UserID" json:"user"` // Association avec l'utilisateur
 }
